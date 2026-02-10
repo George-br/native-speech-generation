@@ -449,7 +449,10 @@ class NativeSpeechDialog(wx.Dialog):
 		try:
 			temp = self.tempSlider.GetValue() / 10.0
 			styleInstructions = self.styleCtrl.GetValue().strip()
-			finalText = f"{styleInstructions}\n{text}" if styleInstructions else text
+			if styleInstructions:
+				finalText = f"{styleInstructions}\n{text}"
+			else:
+				finalText = f"Please read the following text aloud:\n{text}"
 
 			contents = [types.Content(role="user", parts=[types.Part.from_text(text=finalText)])]
 
