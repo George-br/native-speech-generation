@@ -14,7 +14,7 @@ Key Features:
 - Seamless Workflow: The add-on provides instant audio playback upon generation and allows you to save the resulting .wav file for later use.
 
 To get started, obtain a Gemini API key from Google AI Studio and enter it in the add-on's settings panel, found under NVDA's Tools menu."""),
-	addon_version="1.5.4",
+	addon_version="1.5.5",
 	addon_changelog=_("""- Stability: Restored previous dependency handling to resolve crashes (pyo3 panic).
 - Localization: Fixed translation issues for Interface and Settings dialogs.
 - Fix: Resolved SSL Certificate path error.
@@ -34,7 +34,6 @@ pythonSources: list[str] = [
 	"addon/globalPlugins/NativeSpeechGeneration/*.py",
 	"addon/globalPlugins/NativeSpeechGeneration/core/*.py",
 	"addon/globalPlugins/NativeSpeechGeneration/interface/*.py",
-	"addon/globalPlugins/NativeSpeechGeneration/lib/*.py",
 	"addon/installTasks.py",
 ]
 
