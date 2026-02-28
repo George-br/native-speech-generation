@@ -31,11 +31,7 @@ def _has_prefix(moduleName: str) -> bool:
 
 
 def _collect_conflicting_modules() -> dict[str, ModuleType]:
-	return {
-		name: module
-		for name, module in sys.modules.items()
-		if _has_prefix(name)
-	}
+	return {name: module for name, module in sys.modules.items() if _has_prefix(name)}
 
 
 def _load_versions(modules: dict[str, ModuleType], names: tuple[str, ...]) -> dict[str, str]:
@@ -103,7 +99,9 @@ def _create_runtime(libDir: str) -> VendorRuntime:
 			runtimeModules = _collect_conflicting_modules()
 			if pyaudio is not None:
 				runtimeModules["pyaudio"] = pyaudio
-			versions = _load_versions(runtimeModules, ("google.genai", "pydantic", "websockets", "typing_extensions"))
+			versions = _load_versions(
+				runtimeModules, ("google.genai", "pydantic", "websockets", "typing_extensions")
+			)
 		finally:
 			sys.path = originalPath
 			for moduleName in list(sys.modules.keys()):
