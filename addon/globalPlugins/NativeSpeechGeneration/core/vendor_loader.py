@@ -100,7 +100,8 @@ def _create_runtime(libDir: str) -> VendorRuntime:
 			if pyaudio is not None:
 				runtimeModules["pyaudio"] = pyaudio
 			versions = _load_versions(
-				runtimeModules, ("google.genai", "pydantic", "websockets", "typing_extensions")
+				runtimeModules,
+				("google.genai", "pydantic", "websockets", "typing_extensions"),
 			)
 		finally:
 			sys.path = originalPath
