@@ -14,17 +14,17 @@ Key Features:
 - Seamless Workflow: The add-on provides instant audio playback upon generation and allows you to save the resulting .wav file for later use.
 
 To get started, obtain a Gemini API key from Google AI Studio and enter it in the add-on's settings panel, found under NVDA's Tools menu."""),
-	addon_version="1.5.5",
-	addon_changelog=_("""- Stability: Restored previous dependency handling to resolve crashes (pyo3 panic).
-- Localization: Fixed translation issues for Interface and Settings dialogs.
-- Fix: Resolved SSL Certificate path error.
+	addon_version="1.5.6",
+	addon_changelog=_("""- Talk With AI: Added optional session memory and a clear-memory control.
+- Talk With AI: Improved stream stability with reconnect backoff/retry and adaptive buffering.
+- Documentation: Added Spanish-language documentation.
 """),
 	addon_author="Muhammad <muha.aku@gmail.com>",
 	addon_url="https://github.com/muhammadGagah/native-speech-generation/",
 	addon_sourceURL="https://github.com/muhammadGagah/native-speech-generation/",
 	addon_docFileName="readme.html",
 	addon_minimumNVDAVersion="2024.1",
-	addon_lastTestedNVDAVersion="2025.3.2",
+	addon_lastTestedNVDAVersion="2025.3.3",
 	addon_updateChannel=None,
 	addon_license="GPL-2.0",
 	addon_licenseURL="https://www.gnu.org/licenses/gpl-2.0.html",

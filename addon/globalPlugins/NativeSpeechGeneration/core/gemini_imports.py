@@ -1,43 +1,36 @@
 # -*- coding: utf-8 -*-
-import sys
-import platform
+import os
+
 from logHandler import log
 
-GENAI_AVAILABLE = False
-genai = None
-types = None
+from .vendor_loader import load_runtime, runtime_scope
 
-__all__ = ["genai", "types", "GENAI_AVAILABLE"]
+_CORE_DIR = os.path.dirname(os.path.abspath(__file__))
+_PKG_DIR = os.path.dirname(_CORE_DIR)
+_LIB_DIR = os.path.join(_PKG_DIR, "lib")
+_RUNTIME = load_runtime(_LIB_DIR)
 
-try:
-	# Dependency Conflict Resolution (Scoped / Safe Mode)
-	conflictingLibs = ["typing_extensions", "pydantic", "pydantic_core", "annotated_types"]
-	originalModules = {}
+genai = _RUNTIME.genai
+types = _RUNTIME.types
+pyaudio = _RUNTIME.pyaudio
 
-	for lib in conflictingLibs:
-		if lib in sys.modules:
-			originalModules[lib] = sys.modules[lib]
-			del sys.modules[lib]
-	try:
-		from google import genai
-		from google.genai import types
+GENAI_AVAILABLE = _RUNTIME.genaiAvailable
+PYAUDIO_AVAILABLE = _RUNTIME.pyaudioAvailable
 
-		GENAI_AVAILABLE = True
-		log.info("google-genai loaded successfully via core.gemini_imports")
-	finally:
-		# Restore original modules to avoid breaking other add-ons
-		for lib, module in originalModules.items():
-			sys.modules[lib] = module
-except Exception as e:
-	genai = None
-	types = None
-	GENAI_AVAILABLE = False
+__all__ = [
+	"genai",
+	"types",
+	"pyaudio",
+	"GENAI_AVAILABLE",
+	"PYAUDIO_AVAILABLE",
+	"getRuntimeScope",
+]
 
-	errMsg = (
-		f"Google GenAI Import Error:\n{e}\n\n"
-		f"Python: {sys.version}\n"
-		f"Arch: {platform.architecture()}\n"
-		f"Path: {sys.path[:3]}..."
-	)
-	log.warning("google-genai not available", exc_info=True)
-	log.error(errMsg)
+if not GENAI_AVAILABLE:
+	log.warning("google-genai not available via isolated vendor loader")
+if not PYAUDIO_AVAILABLE:
+	log.warning("PyAudio not available via isolated vendor loader")
+
+
+def getRuntimeScope():
+	return runtime_scope(_RUNTIME)

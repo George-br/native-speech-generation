@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import wx
-import sys
 import threading
 import asyncio
 import traceback
+import random
+import time
 from logHandler import log
 import addonHandler
 
@@ -13,25 +14,15 @@ import queue
 
 import struct
 
+from .core.gemini_imports import (
+	GENAI_AVAILABLE,
+	PYAUDIO_AVAILABLE,
+	genai,
+	getRuntimeScope,
+	pyaudio,
+)
+
 addonHandler.initTranslation()
-
-# Ensure lib directory is in path
-addonDir = os.path.dirname(os.path.abspath(__file__))
-libDir = os.path.join(addonDir, "lib")
-if libDir not in sys.path:
-	sys.path.insert(0, libDir)
-
-try:
-	import pyaudio
-except ImportError:
-	pyaudio = None
-	log.warning("talkWithAI: PyAudio not found.")
-
-try:
-	from google import genai
-except ImportError:
-	genai = None
-	log.warning("talkWithAI: Google GenAI not found.")
 
 
 MODEL_NAME = "gemini-2.5-flash-native-audio-preview-12-2025"
@@ -45,6 +36,13 @@ INPUT_RATE = 16000
 OUTPUT_RATE = 24000
 CHUNK = 1024
 BUFFER_THRESHOLD = 5
+MIN_BUFFER_THRESHOLD = 2
+MAX_BUFFER_THRESHOLD = 10
+BACKOFF_BASE_SECONDS = 1.0
+BACKOFF_MAX_SECONDS = 20.0
+BACKOFF_JITTER_SECONDS = 0.4
+MEMORY_MAX_LINES = 12
+MEMORY_MAX_CHARS = 1800
 
 
 class TalkWithAIDialog(wx.Dialog):
@@ -68,6 +66,12 @@ class TalkWithAIDialog(wx.Dialog):
 		self.isPlaying = False
 		self.playThread = None
 		self.volume = 80  # Default volume percentage
+		self.bufferThreshold = BUFFER_THRESHOLD
+		self.lastBufferAdjustAt = 0.0
+		self.lastStatusAt = 0.0
+		self.memoryEnabled = True
+		self.sessionMemory = []
+		self.memoryLock = threading.Lock()
 
 		# Audio Device Selection
 		self.inputDevices = self._getDeviceList(input=True)
@@ -77,13 +81,13 @@ class TalkWithAIDialog(wx.Dialog):
 
 		self._buildUi()
 
-		if not pyaudio:
+		if not PYAUDIO_AVAILABLE:
 			wx.CallAfter(
 				self.reportError,
 				_("PyAudio library is not installed. This feature requires PyAudio."),
 			)
 			self.connectBtn.Disable()
-		if not genai:
+		if not GENAI_AVAILABLE:
 			wx.CallAfter(self.reportError, _("Google GenAI library is not installed."))
 			self.connectBtn.Disable()
 
@@ -93,9 +97,10 @@ class TalkWithAIDialog(wx.Dialog):
 	def _getDeviceList(self, input=True):
 		"""Returns a list of dicts: {'index': int, 'name': str}"""
 		devices = []
-		if not pyaudio:
+		if not PYAUDIO_AVAILABLE:
 			return devices
-		p = pyaudio.PyAudio()
+		with getRuntimeScope():
+			p = pyaudio.PyAudio()
 		try:
 			info = p.get_host_api_info_by_index(0)
 			numDevices = info.get("deviceCount")
@@ -186,6 +191,17 @@ class TalkWithAIDialog(wx.Dialog):
 		self.googleSearchCb.SetValue(False)
 		controlsSizer.Add(self.googleSearchCb, 0, wx.ALL | wx.EXPAND, 5)
 
+		# Translators: Checkbox to enable temporary conversation memory during this dialog session.
+		self.memoryCb = wx.CheckBox(panel, label=_("Use session memory"))
+		self.memoryCb.SetValue(True)
+		self.memoryCb.Bind(wx.EVT_CHECKBOX, self.onMemoryToggle)
+		controlsSizer.Add(self.memoryCb, 0, wx.ALL | wx.EXPAND, 5)
+
+		# Translators: Button to clear temporary conversation memory for the current dialog session.
+		self.clearMemoryBtn = wx.Button(panel, label=_("Clear memory now"))
+		self.clearMemoryBtn.Bind(wx.EVT_BUTTON, self.onClearMemory)
+		controlsSizer.Add(self.clearMemoryBtn, 0, wx.ALL | wx.EXPAND, 5)
+
 		# Volume Slider
 		volSizer = wx.BoxSizer(wx.HORIZONTAL)
 		volLabel = wx.StaticText(panel, label=_("Volume:"))
@@ -225,13 +241,75 @@ class TalkWithAIDialog(wx.Dialog):
 	def onVolumeChange(self, evt):
 		self.volume = self.volSlider.GetValue()
 
+	def onMemoryToggle(self, evt):
+		self.memoryEnabled = self.memoryCb.GetValue()
+		if not self.memoryEnabled:
+			self._clearSessionMemory()
+		if self.sessionActive:
+			self.clearMemoryBtn.Hide()
+		else:
+			self.clearMemoryBtn.Show(self.memoryEnabled)
+		self.Layout()
+
+	def onClearMemory(self, evt):
+		self._clearSessionMemory()
+		self.updateStatus(_("Memory cleared"))
+
+	def _clearSessionMemory(self):
+		with self.memoryLock:
+			self.sessionMemory = []
+
+	def _rememberMemoryLine(self, line):
+		if not line:
+			return
+		cleaned = str(line).strip()
+		if not cleaned:
+			return
+		with self.memoryLock:
+			self.sessionMemory.append(cleaned)
+			if len(self.sessionMemory) > MEMORY_MAX_LINES:
+				self.sessionMemory = self.sessionMemory[-MEMORY_MAX_LINES:]
+			totalChars = sum(len(item) for item in self.sessionMemory)
+			while self.sessionMemory and totalChars > MEMORY_MAX_CHARS:
+				totalChars -= len(self.sessionMemory.pop(0))
+
+	def _memorySummary(self):
+		with self.memoryLock:
+			if not self.sessionMemory:
+				return ""
+			return "\n".join(f"- {line}" for line in self.sessionMemory[-MEMORY_MAX_LINES:])
+
+	def _buildSystemInstruction(self):
+		baseRules = (
+			"You are a voice assistant for blind and low-vision users. "
+			"Never fabricate facts. If uncertain, explicitly say you are not sure."
+		)
+		userInstruction = self.systemInstruction.strip() if self.systemInstruction else ""
+		parts = [baseRules]
+		if userInstruction:
+			parts.append(f"User preference:\n{userInstruction}")
+		if self.memoryEnabled:
+			summary = self._memorySummary()
+			if summary:
+				parts.append(f"Session memory:\n{summary}")
+		return "\n\n".join(parts)
+
+	def _buildReconnectDelay(self, attempt):
+		baseDelay = min(BACKOFF_MAX_SECONDS, BACKOFF_BASE_SECONDS * (2 ** max(0, attempt - 1)))
+		return baseDelay + random.uniform(0.0, BACKOFF_JITTER_SECONDS)
+
 	def onConnect(self, evt):
 		self.connectBtn.Disable()
 		self.disconnectBtn.Enable()
 
 		# Store state and hide checkbox
 		self.useGoogleSearch = self.googleSearchCb.GetValue()
+		self.memoryEnabled = self.memoryCb.GetValue()
+		if not self.memoryEnabled:
+			self._clearSessionMemory()
 		self.googleSearchCb.Hide()
+		self.memoryCb.Disable()
+		self.clearMemoryBtn.Hide()
 
 		# Get selected devices
 		inSel = self.inputChoice.GetSelection()
@@ -290,6 +368,7 @@ class TalkWithAIDialog(wx.Dialog):
 	def onClose(self, evt: wx.Event):
 		self.sessionActive = False
 		self.isPlaying = False
+		self._clearSessionMemory()
 
 		# Drain and clear audio queue
 		while not self.audioQueue.empty():
@@ -383,6 +462,7 @@ class TalkWithAIDialog(wx.Dialog):
 		"""
 		buffer = []
 		buffering = True
+		self.bufferThreshold = BUFFER_THRESHOLD
 
 		while self.sessionActive and self.isPlaying:
 			try:
@@ -413,7 +493,7 @@ class TalkWithAIDialog(wx.Dialog):
 
 				if buffering:
 					buffer.append(data)
-					if len(buffer) >= BUFFER_THRESHOLD:
+					if len(buffer) >= self.bufferThreshold:
 						buffering = False
 						# Play accumulated buffer
 						if self.outputStream and self.outputStream.is_active():
@@ -424,12 +504,26 @@ class TalkWithAIDialog(wx.Dialog):
 					# Direct play
 					if self.outputStream and self.outputStream.is_active():
 						self.outputStream.write(data)
+					queueDepth = self.audioQueue.qsize()
+					now = time.monotonic()
+					if queueDepth > self.bufferThreshold + 3 and self.bufferThreshold > MIN_BUFFER_THRESHOLD:
+						if now - self.lastBufferAdjustAt > 1.0:
+							self.bufferThreshold -= 1
+							self.lastBufferAdjustAt = now
+					elif queueDepth <= 1 and self.bufferThreshold < MAX_BUFFER_THRESHOLD:
+						if now - self.lastBufferAdjustAt > 1.0:
+							self.bufferThreshold += 1
+							self.lastBufferAdjustAt = now
 
 			except queue.Empty:
 				# If queue is empty, we have run out of audio data.
 				# To prevent micro-stuttering, we switch back to buffering mode.
 				if not buffering and self.sessionActive:
 					buffering = True
+					now = time.monotonic()
+					if self.bufferThreshold < MAX_BUFFER_THRESHOLD and now - self.lastBufferAdjustAt > 0.8:
+						self.bufferThreshold += 1
+						self.lastBufferAdjustAt = now
 				continue
 			except Exception as e:
 				log.error(f"Audio Player Error: {e}")
@@ -479,6 +573,14 @@ class TalkWithAIDialog(wx.Dialog):
 					log.debug("TalkWithAI: Turn Complete")
 					continue
 
+				inputTranscription = getattr(response.server_content, "input_transcription", None)
+				if inputTranscription and getattr(inputTranscription, "text", None):
+					self._rememberMemoryLine(f"User: {inputTranscription.text}")
+
+				outputTranscription = getattr(response.server_content, "output_transcription", None)
+				if outputTranscription and getattr(outputTranscription, "text", None):
+					self._rememberMemoryLine(f"Assistant: {outputTranscription.text}")
+
 				modelTurn = response.server_content.model_turn
 				if modelTurn is not None:
 					for part in modelTurn.parts:
@@ -486,6 +588,9 @@ class TalkWithAIDialog(wx.Dialog):
 							audioData = part.inline_data.data
 							# Push to queue instead of writing directly
 							self.audioQueue.put(audioData)
+						textPart = getattr(part, "text", None)
+						if textPart:
+							self._rememberMemoryLine(f"Assistant: {textPart}")
 		except Exception as e:
 			log.error(f"TalkWithAI Receive Loop Error: {e}")
 		finally:
@@ -496,7 +601,8 @@ class TalkWithAIDialog(wx.Dialog):
 	async def runSession(self):
 		try:
 			# Setup Audio (Once for the entire session duration)
-			self.audioInterface = pyaudio.PyAudio()
+			with getRuntimeScope():
+				self.audioInterface = pyaudio.PyAudio()
 
 			# Output Stream (Speaker)
 			self.outputStream = self.audioInterface.open(
@@ -519,74 +625,80 @@ class TalkWithAIDialog(wx.Dialog):
 			)
 
 			# Initialize Client
-			self.client = genai.Client(api_key=self.apiKey, http_options={"api_version": "v1alpha"})
-
-			# config object contains generation_config
-			toolsConfig = []
-			if self.useGoogleSearch:
-				toolsConfig.append({"google_search": {}})
-
-			config = {
-				"response_modalities": ["AUDIO"],
-				"tools": toolsConfig,
-				"generation_config": {
-					"speech_config": {
-						"voice_config": {"prebuilt_voice_config": {"voice_name": self.voiceName}},
-					},
-				},
-				"system_instruction": {"parts": [{"text": self.systemInstruction}]}
-				if self.systemInstruction
-				else None,
-			}
+			with getRuntimeScope():
+				self.client = genai.Client(api_key=self.apiKey, http_options={"api_version": "v1alpha"})
 
 			firstConnect = True
+			retryAttempt = 0
 
 			# Main Reconnection Loop
 			while self.sessionActive:
 				try:
+					toolsConfig = []
+					if self.useGoogleSearch:
+						toolsConfig.append({"google_search": {}})
+					systemInstruction = self._buildSystemInstruction()
+					config = {
+						"response_modalities": ["AUDIO"],
+						"tools": toolsConfig,
+						"generation_config": {
+							"speech_config": {
+								"voice_config": {"prebuilt_voice_config": {"voice_name": self.voiceName}},
+							},
+						},
+						"system_instruction": {"parts": [{"text": systemInstruction}]},
+					}
 					log.debug("TalkWithAI: Connecting to Gemini Live...")
-					async with self.client.aio.live.connect(model=MODEL_NAME, config=config) as session:
-						if firstConnect:
-							wx.CallAfter(self.updateStatus, _("Connected"))
-							# Play start sound only on the very first successful connection
-							self._playSoundEffect(STREAM_START_SOUND_PATH)
-							firstConnect = False
-						else:
-							log.debug("TalkWithAI: Reconnected silently")
+					with getRuntimeScope():
+						async with self.client.aio.live.connect(model=MODEL_NAME, config=config) as session:
+							retryAttempt = 0
+							if firstConnect:
+								wx.CallAfter(self.updateStatus, _("Connected"))
+								# Play start sound only on the very first successful connection
+								self._playSoundEffect(STREAM_START_SOUND_PATH)
+								firstConnect = False
+							else:
+								log.debug("TalkWithAI: Reconnected silently")
 
-						self.session = session
+							self.session = session
 
-						# Start sending and receiving tasks
-						sendTask = asyncio.create_task(self.sendAudioLoop(session))
-						receiveTask = asyncio.create_task(self.receiveLoop(session))
+							# Start sending and receiving tasks
+							sendTask = asyncio.create_task(self.sendAudioLoop(session))
+							receiveTask = asyncio.create_task(self.receiveLoop(session))
 
-						if not self.isPlaying:
-							playWorker = threading.Thread(target=self._audioPlayerWorker, daemon=True)
-							self.isPlaying = True
-							playWorker.start()
+							if not self.isPlaying:
+								playWorker = threading.Thread(target=self._audioPlayerWorker, daemon=True)
+								self.isPlaying = True
+								playWorker.start()
 
-						# Wait for either task to finish
-						# If connection drops, receiveLoop finishes.
-						# We then cancel sendTask and reconnect.
-						_done, pending = await asyncio.wait(
-							[sendTask, receiveTask],
-							return_when=asyncio.FIRST_COMPLETED,
-						)
+							# Wait for either task to finish
+							# If connection drops, receiveLoop finishes.
+							# We then cancel sendTask and reconnect.
+							_done, pending = await asyncio.wait(
+								[sendTask, receiveTask],
+								return_when=asyncio.FIRST_COMPLETED,
+							)
 
-						# Cancel pending tasks (e.g. send loop if receive died)
-						for task in pending:
-							task.cancel()
-							try:
-								await task
-							except asyncio.CancelledError:
-								pass
+							# Cancel pending tasks (e.g. send loop if receive died)
+							for task in pending:
+								task.cancel()
+								try:
+									await task
+								except asyncio.CancelledError:
+									pass
 
 				except Exception as e:
 					log.error(f"TalkWithAI Session/Connection Error: {e}")
-					# Only play end sound if we are giving up (session not active)
-					# or just notify user of retry
-					wx.CallAfter(self.updateStatus, _("Connection Lost. Retrying..."))
-					await asyncio.sleep(2)  # Backoff before reconnect
+					retryAttempt += 1
+					delay = self._buildReconnectDelay(retryAttempt)
+					now = time.monotonic()
+					if now - self.lastStatusAt > 1.0:
+						wx.CallAfter(
+							self.updateStatus,
+							_("Connection lost. Retrying in {seconds:.1f}s").format(seconds=delay),
+						)
+						self.lastStatusAt = now
+					await asyncio.sleep(delay)
 
 				if self.sessionActive:
 					log.debug("TalkWithAI: Reconnecting...")
@@ -621,6 +733,8 @@ class TalkWithAIDialog(wx.Dialog):
 				self.connectBtn.Enable()
 				self.disconnectBtn.Disable()
 				self.googleSearchCb.Show()
+				self.memoryCb.Enable()
+				self.clearMemoryBtn.Show(self.memoryCb.GetValue())
 
 				# Show device selection again
 				for child in self.deviceSizer.GetChildren():
