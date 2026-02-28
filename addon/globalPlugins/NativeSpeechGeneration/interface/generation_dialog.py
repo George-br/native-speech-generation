@@ -22,7 +22,7 @@ from ..core.constants import (
 	FALLBACK_VOICES,
 )
 from ..core.audio_utils import convertToWav, mergeWavFiles, saveBinaryFile, safeStartFile
-from ..core.gemini_imports import genai, types, GENAI_AVAILABLE
+from ..core.gemini_imports import GENAI_AVAILABLE, genai, getRuntimeScope, types
 
 from .. import talkWithAI
 
@@ -253,14 +253,16 @@ class NativeSpeechDialog(wx.Dialog):
 		# Force close the stream if it's active
 		if hasattr(self, "currentStream") and self.currentStream:
 			try:
-				self.currentStream.close()
+				with getRuntimeScope():
+					self.currentStream.close()
 			except Exception:
 				pass
 
 		# Close the client
 		if self.client:
 			try:
-				self.client.close()
+				with getRuntimeScope():
+					self.client.close()
 			except Exception:
 				pass
 		self.Destroy()
@@ -421,7 +423,8 @@ class NativeSpeechDialog(wx.Dialog):
 	def _generateThread(self, text: str) -> None:
 		ui.message(_("Generating speech, please wait..."))
 		try:
-			self.client = genai.Client(api_key=self.apiKey)
+			with getRuntimeScope():
+				self.client = genai.Client(api_key=self.apiKey)
 		except Exception as e:
 			log.error(f"Failed init genai client: {e}", exc_info=True)
 			if not self.isClosed:
@@ -447,51 +450,52 @@ class NativeSpeechDialog(wx.Dialog):
 			wx.CallAfter(self.saveBtn.Enable, True)
 
 		try:
-			temp = self.tempSlider.GetValue() / 10.0
-			styleInstructions = self.styleCtrl.GetValue().strip()
-			if styleInstructions:
-				finalText = f"{styleInstructions}\n{text}"
-			else:
-				finalText = f"Please read the following text aloud:\n{text}"
+			with getRuntimeScope():
+				temp = self.tempSlider.GetValue() / 10.0
+				styleInstructions = self.styleCtrl.GetValue().strip()
+				if styleInstructions:
+					finalText = f"{styleInstructions}\n{text}"
+				else:
+					finalText = f"Please read the following text aloud:\n{text}"
 
-			contents = [types.Content(role="user", parts=[types.Part.from_text(text=finalText)])]
+				contents = [types.Content(role="user", parts=[types.Part.from_text(text=finalText)])]
 
-			if not self.modeMulti:
-				voiceName = self._getSelectedVoiceName(self.voiceChoiceSingle, self.selectedVoiceIdx)
-				speechConfig = types.SpeechConfig(
-					voice_config=types.VoiceConfig(
-						prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voiceName),
-					),
-				)
-			else:
-				speaker1Name = self.spk1NameCtrl.GetValue().strip() or _("Speaker1")
-				speaker2Name = self.spk2NameCtrl.GetValue().strip() or _("Speaker2")
-				voice1 = self._getSelectedVoiceName(self.voiceChoiceMulti1, self.selectedVoiceIdx)
-				voice2 = self._getSelectedVoiceName(self.voiceChoiceMulti2, self.selectedVoiceIdx2)
-				speechConfig = types.SpeechConfig(
-					multi_speaker_voice_config=types.MultiSpeakerVoiceConfig(
-						speaker_voice_configs=[
-							types.SpeakerVoiceConfig(
-								speaker=speaker1Name,
-								voice_config=types.VoiceConfig(
-									prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice1),
+				if not self.modeMulti:
+					voiceName = self._getSelectedVoiceName(self.voiceChoiceSingle, self.selectedVoiceIdx)
+					speechConfig = types.SpeechConfig(
+						voice_config=types.VoiceConfig(
+							prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voiceName),
+						),
+					)
+				else:
+					speaker1Name = self.spk1NameCtrl.GetValue().strip() or _("Speaker1")
+					speaker2Name = self.spk2NameCtrl.GetValue().strip() or _("Speaker2")
+					voice1 = self._getSelectedVoiceName(self.voiceChoiceMulti1, self.selectedVoiceIdx)
+					voice2 = self._getSelectedVoiceName(self.voiceChoiceMulti2, self.selectedVoiceIdx2)
+					speechConfig = types.SpeechConfig(
+						multi_speaker_voice_config=types.MultiSpeakerVoiceConfig(
+							speaker_voice_configs=[
+								types.SpeakerVoiceConfig(
+									speaker=speaker1Name,
+									voice_config=types.VoiceConfig(
+										prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice1),
+									),
 								),
-							),
-							types.SpeakerVoiceConfig(
-								speaker=speaker2Name,
-								voice_config=types.VoiceConfig(
-									prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice2),
+								types.SpeakerVoiceConfig(
+									speaker=speaker2Name,
+									voice_config=types.VoiceConfig(
+										prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice2),
+									),
 								),
-							),
-						],
-					),
-				)
+							],
+						),
+					)
 
-			generateConfig = types.GenerateContentConfig(
-				temperature=temp,
-				response_modalities=["audio"],
-				speech_config=speechConfig,
-			)
+				generateConfig = types.GenerateContentConfig(
+					temperature=temp,
+					response_modalities=["audio"],
+					speech_config=speechConfig,
+				)
 			outPathBase = os.path.join(ADDON_DIR_VAL, "last_audio_generated")
 
 			if self.isClosed:
@@ -546,42 +550,44 @@ class NativeSpeechDialog(wx.Dialog):
 			if self.isClosed:
 				return None
 			# Store the stream object
-			self.currentStream = client.models.generate_content_stream(
-				model=model,
-				contents=contents,
-				config=configObj,
-			)
+			with getRuntimeScope():
+				self.currentStream = client.models.generate_content_stream(
+					model=model,
+					contents=contents,
+					config=configObj,
+				)
 
-			for chunk in self.currentStream:
-				if self.isClosed:
-					# Explicitly close the stream iterator to kill connection
-					try:
-						self.currentStream.close()
-					except Exception:
-						pass
-					return None
+			with getRuntimeScope():
+				for chunk in self.currentStream:
+					if self.isClosed:
+						# Explicitly close the stream iterator to kill connection
+						try:
+							self.currentStream.close()
+						except Exception:
+							pass
+						return None
 
-				if not getattr(chunk, "candidates", None):
-					continue
-				candidate = chunk.candidates[0]
-				if not candidate.content or not candidate.content.parts:
-					continue
-				part = candidate.content.parts[0]
+					if not getattr(chunk, "candidates", None):
+						continue
+					candidate = chunk.candidates[0]
+					if not candidate.content or not candidate.content.parts:
+						continue
+					part = candidate.content.parts[0]
 
-				if part.inline_data and getattr(part.inline_data, "data", None):
-					inline = part.inline_data
-					ext = mimetypes.guess_extension(inline.mime_type or "") or ""
+					if part.inline_data and getattr(part.inline_data, "data", None):
+						inline = part.inline_data
+						ext = mimetypes.guess_extension(inline.mime_type or "") or ""
 
-					if not ext or ext.lower() not in (".wav", ".mp3", ".ogg", ".flac"):
-						wavBytes = convertToWav(inline.data, inline.mime_type)
-						filename = f"{outPathBase}_{fileIndex}.wav"
-						saveBinaryFile(filename, wavBytes)
-					else:
-						filename = f"{outPathBase}_{fileIndex}{ext}"
-						saveBinaryFile(filename, inline.data)
+						if not ext or ext.lower() not in (".wav", ".mp3", ".ogg", ".flac"):
+							wavBytes = convertToWav(inline.data, inline.mime_type)
+							filename = f"{outPathBase}_{fileIndex}.wav"
+							saveBinaryFile(filename, wavBytes)
+						else:
+							filename = f"{outPathBase}_{fileIndex}{ext}"
+							saveBinaryFile(filename, inline.data)
 
-					savedPaths.append(filename)
-					fileIndex += 1
+						savedPaths.append(filename)
+						fileIndex += 1
 
 			if not savedPaths:
 				wx.CallAfter(

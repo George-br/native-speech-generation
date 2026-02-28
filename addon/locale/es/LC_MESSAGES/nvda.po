@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Native_Speech_generation 1.0\n"
+"Project-Id-Version: 'NativeSpeechGeneration' '1.5.6'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2026-02-07 13:00+0700\n"
-"PO-Revision-Date: 2026-02-10 07:27+0700\n"
+"POT-Creation-Date: 2026-02-20 16:58+0700\n"
+"PO-Revision-Date: 2026-02-20 17:12+0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -44,20 +44,20 @@ msgstr ""
 
 #: addon\globalPlugins\NativeSpeechGeneration\lib_updater.py:97
 #: addon\globalPlugins\NativeSpeechGeneration\lib_updater.py:153
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:217
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:218
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:153
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:344
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:361
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:381
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:392
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:400
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:409
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:431
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:521
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:590
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:613
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:652
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:233
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:234
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:146
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:346
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:363
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:383
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:394
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:402
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:411
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:434
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:525
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:596
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:619
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:658
 #: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:126
 msgid "Error"
 msgstr "Error"
@@ -100,8 +100,8 @@ msgid ""
 "Are you sure you want to reinstall the libraries? This will redownload the "
 "dependencies and require an NVDA restart."
 msgstr ""
-"¿Estás segura de que quieres reinstalar las librerías? Esto volverá a "
-"descargar las dependencias y requerirá un reinicio de NVDA."
+"Seguro que quieres reinstalar las librerías? Esto volverá a descargar las "
+"dependencias y requerirá un reinicio de NVDA."
 
 #: addon\globalPlugins\NativeSpeechGeneration\lib_updater.py:166
 #: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:88
@@ -121,120 +121,134 @@ msgid "Missing Dependencies"
 msgstr "Dependencias faltantes"
 
 #. Translators: Title of the dialog for the "Talk With AI" feature (REAL-TIME conversation).
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:53
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:51
 msgid "Talk With AI"
 msgstr "Hablar con IA"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:83
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:87
 msgid "PyAudio library is not installed. This feature requires PyAudio."
 msgstr ""
 "La librería PyAudio no está instalada. Esta característica requiere PyAudio."
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:87
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:91
 msgid "Google GenAI library is not installed."
 msgstr "La librería Google GenAI no está instalada."
 
 #. 1. Status Area
 #. Translators: Label for the status area showing connection state.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:124
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:129
 msgid "Status"
 msgstr "Estado"
 
 #. Translators: Initial status message when the dialog opens.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:127
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:132
 msgid "Ready to Connect"
 msgstr "Listo para conectar"
 
 #. 2. Controls Area
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:132
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:137
 msgid "Controls"
 msgstr "Controles"
 
 #. Translators: Button to start the voice conversation.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:138
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:143
 msgid "Start Conversation"
 msgstr "Iniciar conversación"
 
 #. Translators: Button to stop the voice conversation.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:141
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:146
 msgid "Stop Conversation"
 msgstr "Detener conversación"
 
 #. Mic Toggle
 #. Translators: Toggle button label indicating microphone is ON.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:151
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:222
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:156
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:238
 msgid "Microphone: ON"
 msgstr "Micrófono: ENCENDIDO"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:161
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:166
 msgid "Microphone:"
 msgstr "Micrófono:"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:172
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:177
 msgid "Speaker:"
 msgstr "Altavoz:"
 
 #. Google Search Checkbox
 #. Translators: Checkbox to enable "Grounding", allowing the AI to search Google for answers.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:185
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:190
 msgid "Grounding with Google Search"
 msgstr "Contextualización con Búsqueda de Google"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:191
+#. Translators: Checkbox to enable temporary conversation memory during this dialog session.
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:195
+msgid "Use session memory"
+msgstr ""
+
+#. Translators: Button to clear temporary conversation memory for the current dialog session.
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:201
+msgid "Clear memory now"
+msgstr ""
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:207
 msgid "Volume:"
 msgstr "Volumen:"
 
 #. 3. Info Area (Voice only)
 #. Translators: Label for the selected voice
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:203
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:219
 msgid "Voice: "
 msgstr "Voz: "
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:213
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:229
 msgid "Status: "
 msgstr "Estado: "
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:222
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:238
 msgid "Microphone: OFF"
 msgstr "Micrófono: APAGADO"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:259
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:256
+msgid "Memory cleared"
+msgstr ""
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:337
 msgid "Connecting..."
 msgstr "Conectando..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:267
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:345
 msgid "Disconnecting..."
 msgstr "Desconectando..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:550
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:656
 msgid "Connected"
 msgstr "Conectado"
 
-#. Only play end sound if we are giving up (session not active)
-#. or just notify user of retry
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:588
-msgid "Connection Lost. Retrying..."
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:698
+#, fuzzy, python-brace-format
+#| msgid "Connection Lost. Retrying..."
+msgid "Connection lost. Retrying in {seconds:.1f}s"
 msgstr "Conexión perdida. Reintentando..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:638
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:752
 msgid "Ready"
 msgstr "Listo"
 
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:69
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:122
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:61
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:115
 msgid "Open the Native Speech Generation dialog"
 msgstr "Abrir el diálogo de Native Speech Generation"
 
 #. Translators: Title of the settings panel in NVDA preferences.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:70
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:123
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:62
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:116
 #: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:29
 #: buildVars.py:6
 msgid "Native Speech Generation"
 msgstr "Native Speech Generation"
 
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:77
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:69
 msgid ""
 "Native Speech Generation is installing dependencies. Please restart NVDA for "
 "the changes to take effect."
@@ -243,35 +257,35 @@ msgstr ""
 "NVDA para que los cambios surtan efecto."
 
 #. Translators: Title of the information dialog recommending a restart.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:80
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:73
 #: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:115
 msgid "Restart Required"
 msgstr "Requiere reinicio"
 
 #. Translators: Name of the add-on in the NVDA Tools menu.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:115
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:108
 msgid "&Native Speech Generation"
-msgstr "Generación de voz &Nativa"
+msgstr "&Native Speech Generation"
 
 #. Translators: Tooltip or description for the menu item.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:117
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:110
 msgid "Generate speech using Gemini TTS"
 msgstr "Generar voz usando Gemini TTS"
 
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:137
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:130
 msgid ""
 "The Native Speech Generation add-on is already open. Please close the dialog "
 "before opening it again."
 msgstr ""
-"El complemento Native Speech Generation ya está abierto. Por favor, cierra "
+"El complemento Native Speech Generation  ya está abierto. Por favor, cierra "
 "el diálogo antes de volver a abrirlo."
 
 #. Translators: Title of warning dialog when user tries to open the add-on twice.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:140
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:133
 msgid "Add-on Already Running"
 msgstr "Complemento ya en ejecución"
 
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:152
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:145
 #, python-brace-format
 msgid "Failed to open Native Speech Generation dialog: {error}"
 msgstr "Fallo al abrir el diálogo de Native Speech Generation: {error}"
@@ -285,7 +299,7 @@ msgstr "Native Speech Generation (Gemini TTS)"
 #. Translators: Label for the text area where user inputs text to be converted to speech.
 #: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:73
 msgid "&Type text to convert here:"
-msgstr "Escriba el texto para convertir &aquí:"
+msgstr "&Escribir el texto para convertir aquí:"
 
 #. Style Input
 #. Translators: Label for optional instructions on how the speech should be spoken (e.g. "Happy", "Sad").
@@ -329,7 +343,7 @@ msgstr "Temperatura:"
 
 #. Translators: Button to start generating the speech audio.
 #: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:147
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:529
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:533
 msgid "&Generate Speech"
 msgstr "&Generar voz"
 
@@ -379,7 +393,7 @@ msgid "Speaker 1 Name:"
 msgstr "Nombre del hablante 1:"
 
 #: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:219
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:467
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:471
 msgid "Speaker1"
 msgstr "Hablante1"
 
@@ -393,15 +407,15 @@ msgid "Speaker 2 Name:"
 msgstr "Nombre del hablante 2:"
 
 #: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:235
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:468
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:472
 msgid "Speaker2"
 msgstr "Hablante2"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:343
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:345
 msgid "Talk With AI module is missing."
 msgstr "El módulo Hablar con IA no está instalado."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:353
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:355
 msgid ""
 "Talk With AI currently does not support multi-speaker mode. Please select "
 "Single-speaker."
@@ -409,103 +423,103 @@ msgstr ""
 "Hablar con IA actualmente no soporta el modo de múltiples hablantes. Por "
 "favor, selecciona Un solo hablante."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:355
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:357
 msgid "Feature Limitation"
 msgstr "Limitación de característica"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:361
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:363
 msgid "No GEMINI_API_KEY configured."
 msgstr "No se ha configurado la clave de API de Gemini."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:380
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:382
 #, python-brace-format
 msgid "Failed to open Talk With AI: {error}"
 msgstr "Fallo al abrir Hablar con IA: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:391
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:393
 msgid "google-genai library not installed. Please restart NVDA."
 msgstr "la librería google-genai no está instalada. Por favor, reinicia NVDA."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:399
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:401
 msgid "No GEMINI_API_KEY configured. Set it in NVDA settings."
 msgstr ""
-"No se ha configurado la clave de API de Gemini. Conjúrala en la "
-"configuración de NVDA."
+"No se ha configurado la clave de API de Gemini. Establécela en los ajustes "
+"de NVDA."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:408
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:410
 msgid "Please enter text to generate."
 msgstr "Por favor, introduce texto para generar."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:415
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:417
 msgid "Generating..."
 msgstr "Generando..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:422
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:424
 msgid "Generating speech, please wait..."
 msgstr "Generando voz, por favor espera..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:430
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:433
 #, python-brace-format
 msgid "Failed to initialize Google GenAI client: {error}"
 msgstr "Fallo al inicializar el cliente de Google GenAI: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:441
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:444
 msgid "Failed to generate audio."
 msgstr "Fallo al generar audio."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:443
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:446
 msgid "Generation complete."
 msgstr "Generación completa."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:516
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:520
 msgid "An error occurred during generation."
 msgstr "Ocurrió un error durante la generación."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:520
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:524
 #, python-brace-format
 msgid "An unexpected error occurred: {error}"
 msgstr "Ocurrió un error inesperado: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:589
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:595
 msgid "No inline audio data returned by model."
 msgstr "El modelo no devolvió datos de audio en línea."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:612
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:618
 #, python-brace-format
 msgid "Failed to generate speech: {error}"
 msgstr "Fallo al generar voz: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:631
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:637
 msgid "Save Audio File"
 msgstr "Guardar archivo de audio"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:632
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:638
 msgid "WAV files (*.wav)|*.wav|MP3 files (*.mp3)|*.mp3"
 msgstr "Archivos WAV (*.wav)|*.wav|Archivos MP3 (*.mp3)|*.mp3"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:644
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:650
 #, python-brace-format
 msgid "Audio saved to {path}"
 msgstr "Audio guardado en {path}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:645
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:651
 msgid "Success"
 msgstr "Éxito"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:651
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:657
 #, python-brace-format
 msgid "Failed to save audio: {error}"
 msgstr "Fallo al guardar audio: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:666
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:672
 msgid "Sample not available"
 msgstr "Muestra no disponible"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:671
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:677
 msgid "Playing voice sample"
 msgstr "Reproduciendo muestra de voz"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:676
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:682
 msgid "Failed to play sample"
 msgstr "Fallo al reproducir muestra"
 
@@ -539,7 +553,7 @@ msgid ""
 msgstr ""
 "Esto eliminará la librería existente y reiniciará NVDA para volver a "
 "descargarla.\n"
-"¿Estás segura?"
+"¿Estás seguro?"
 
 #: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:114
 msgid ""
@@ -601,14 +615,21 @@ msgstr ""
 
 #: buildVars.py:18
 msgid ""
-"- Stability: Restored previous dependency handling to resolve crashes (pyo3 "
-"panic).\n"
-"- Localization: Fixed translation issues for Interface and Settings "
-"dialogs.\n"
-"- Fix: Resolved SSL Certificate path error.\n"
+"- Talk With AI: Added optional session memory and a clear-memory control.\n"
+"- Talk With AI: Improved stream stability with reconnect backoff/retry and "
+"adaptive buffering.\n"
+"- Documentation: Added Spanish-language documentation.\n"
 msgstr ""
-"- Estabilidad: Restaurado el manejo previo de dependencias para resolver "
-"bloqueos (pyo3 panic).\n"
-"- Localización: Solucionados problemas de traducción en los diálogos de "
-"Interfaz y Configuración.\n"
-"- Corrección: Resuelto el error de la ruta del certificado SSL.\n"
+
+#~ msgid ""
+#~ "- Stability: Restored previous dependency handling to resolve crashes "
+#~ "(pyo3 panic).\n"
+#~ "- Localization: Fixed translation issues for Interface and Settings "
+#~ "dialogs.\n"
+#~ "- Fix: Resolved SSL Certificate path error.\n"
+#~ msgstr ""
+#~ "- Estabilidad: Restaurado el manejo previo de dependencias para resolver "
+#~ "bloqueos (pyo3 panic).\n"
+#~ "- Localización: Solucionados problemas de traducción en los diálogos de "
+#~ "Interfaz y Configuración.\n"
+#~ "- Corrección: Resuelto el error de la ruta del certificado SSL.\n"

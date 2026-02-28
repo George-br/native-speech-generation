@@ -56,6 +56,9 @@ Add-on ini dirancang untuk alur kerja yang lancar, interaksi yang mengutamakan a
 * **Grounding dengan Pencarian Google**: Mengaktifkan AI untuk mengakses informasi real-time dari web selama obrolan Anda.
 * **Dapat Diinterupsi**: Anda dapat memotong pembicaraan AI kapan saja dengan berbicara atau menekan tombol "Hentikan Percakapan".
 * **Dapat Disesuaikan**: Menggunakan suara dan instruksi gaya yang Anda pilih.
+* **Memori Sesi (Opsional)**: Menyimpan konteks percakapan sementara selama sesi Bicara dengan AI aktif agar respons lanjutan lebih koheren.
+* **Kontrol Hapus Memori**: Menghapus memori sesi sementara sebelum percakapan dimulai (atau setelah percakapan dihentikan).
+* **Streaming Lebih Stabil**: Perbaikan reconnect (backoff + retry) dan adaptive audio buffering agar lebih tahan terhadap jaringan yang tidak stabil.
 
 ---
 
@@ -157,6 +160,8 @@ Rasakan percakapan suara dua arah yang alami dengan Gemini.
    * **Hentikan Percakapan**: Mengakhiri sesi.
    * **Grounding dengan Google Search**: Centang kotak ini untuk mengizinkan Gemini menelusuri web guna mencari jawaban (misalnya, berita terkini, cuaca).
      * *Catatan: Kotak centang ini disembunyikan saat percakapan sedang aktif. Hentikan percakapan untuk mengubahnya.*
+   * **Gunakan memori sesi**: Menyimpan memori sementara hanya untuk sesi percakapan saat ini.
+   * **Hapus memori sekarang**: Menghapus memori sementara sebelum memulai (atau setelah menghentikan) percakapan.
    * **Tombol Mikrofon**: Bisukan/Bunyikan mikrofon Anda.
    * **Volume**: Sesuaikan volume pemutaran AI.
 

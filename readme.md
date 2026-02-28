@@ -58,6 +58,9 @@ This add-on is designed for smooth workflows, accessibility-first interaction, a
 * **Grounding with Google Search**: Enable the AI to access real-time information from the web during your chat.
 * **Interruptible**: You can interrupt the AI at any time by speaking or pressing "Stop Conversation".
 * **Customizable**: Uses your selected voice and style instructions.
+* **Session Memory (Optional)**: Keep temporary conversation context during the current Talk With AI session for more coherent follow-up responses.
+* **Clear Memory Control**: Clear temporary session memory before starting a conversation (or after stopping).
+* **More Stable Streaming**: Improved reconnection behavior (backoff + retry) and adaptive audio buffering for better resilience on unstable networks.
 
 ---
 
@@ -162,6 +165,8 @@ Experience a natural, two-way voice conversation with Gemini.
    * **Stop Conversation**: Ends the session.
    * **Grounding with Google Search**: Check this box to allow Gemini to search the web for answers (e.g., current news, weather).
      * *Note: This checkbox is hidden while a conversation is active. Stop the conversation to change it.*
+   * **Use session memory**: Keep temporary memory for the current conversation session only.
+   * **Clear memory now**: Clear temporary memory before starting (or after stopping) a conversation.
    * **Microphone Toggle**: Mute/Unmute your microphone.
    * **Volume**: Adjust the AI's playback volume.
 

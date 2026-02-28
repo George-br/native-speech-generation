@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import wx
 import addonHandler
 import globalPluginHandler
@@ -22,11 +21,6 @@ if TYPE_CHECKING:
 
 # Initialization & Dependency Management
 pkgDir = os.path.dirname(os.path.abspath(__file__))
-
-# Ensure globalPlugins is in path
-gpDir = os.path.dirname(pkgDir)
-if gpDir not in sys.path:
-	sys.path.insert(0, gpDir)
 
 # Libs setup
 try:
@@ -53,8 +47,6 @@ if not os.path.isdir(libDir):
 
 	wx.CallAfter(runCheck)
 else:
-	if libDir not in sys.path:
-		sys.path.insert(0, libDir)
 	LIBS_AVAILABLE = True
 
 if not LIBS_AVAILABLE:
@@ -74,7 +66,8 @@ if not LIBS_AVAILABLE:
 			wx.CallAfter(
 				wx.MessageBox,
 				_(
-					"Native Speech Generation is installing dependencies. Please restart NVDA for the changes to take effect.",
+					"Native Speech Generation is installing dependencies. "
+					"Please restart NVDA for the changes to take effect.",
 				),
 				# Translators: Title of the information dialog recommending a restart.
 				_("Restart Required"),
