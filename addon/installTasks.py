@@ -7,12 +7,9 @@
 import os
 import shutil
 import addonHandler
-import config
 from logHandler import log
 
 addonHandler.initTranslation()
-
-CONFIG_DOMAIN = "NativeSpeechGeneration"
 
 
 def onInstall() -> None:
@@ -61,17 +58,6 @@ def onInstall() -> None:
 def onUninstall() -> None:
 	"""
 	Called when the add-on is uninstalled.
-	Cleans up configuration. Note: This also runs during updates (as the old version is removed).
+	The configuration is intentionally preserved so add-on updates do not wipe user settings.
 	"""
-	# Clean up config spec
-	if CONFIG_DOMAIN in config.conf.spec:
-		del config.conf.spec[CONFIG_DOMAIN]
-
-	# Clean up config values from all profiles
-	for profile in config.conf.profiles:
-		if CONFIG_DOMAIN in profile:
-			del profile[CONFIG_DOMAIN]
-			profile.save()  # Ensure save? usually config.save() handles it later, but deleting dict key is immediate in memory.
-
-	config.save()
-	log.info(f"Configuration for '{CONFIG_DOMAIN}' has been removed.")
+	log.info("NativeSpeechGeneration uninstall: preserving configuration to avoid data loss across updates.")

@@ -9,18 +9,17 @@ import tempfile
 import winsound
 import gui
 import ui
-import config
 import addonHandler
 from logHandler import log
 from typing import Any, TYPE_CHECKING
 
 from ..core.constants import (
-	CONFIG_DOMAIN,
 	DEFAULT_MODEL,
 	SECOND_MODEL,
 	VOICE_SAMPLE_BASE,
 	FALLBACK_VOICES,
 )
+from ..core import config_store
 from ..core.audio_utils import convertToWav, mergeWavFiles, saveBinaryFile, safeStartFile
 from ..core.gemini_imports import GENAI_AVAILABLE, genai, getRuntimeScope, types
 
@@ -46,10 +45,6 @@ class NativeSpeechDialog(wx.Dialog):
 	def __init__(self, parent: wx.Window) -> None:
 		# Translators: The title of the main dialog window for generating speech.
 		super().__init__(parent, title=_("Native Speech Generation (Gemini TTS)"))
-		try:
-			self.apiKey = config.conf[CONFIG_DOMAIN]["apiKey"]
-		except Exception:
-			self.apiKey = ""
 
 		self.lastAudioPath: str | None = None
 		self.model = DEFAULT_MODEL
@@ -324,6 +319,28 @@ class NativeSpeechDialog(wx.Dialog):
 			log.error(f"Failed to get selected voice name: {e}", exc_info=True)
 			return "Zephyr"
 
+	def _resolveApiKeyForUse(self) -> str | None:
+		resolution = config_store.resolve_api_key()
+		if resolution.value:
+			return resolution.value
+		self._showApiKeyUnavailableMessage(resolution)
+		return None
+
+	def _showApiKeyUnavailableMessage(self, resolution: config_store.ApiKeyResolution) -> None:
+		if resolution.status == "undecryptable":
+			# Translators: Error shown when a stored encrypted API key cannot be decrypted.
+			message = _(
+				"The stored Gemini API key could not be decrypted on this Windows user or machine. "
+				"Please enter it again in NVDA settings, or define {envVarName} in the environment.",
+			).format(envVarName=config_store.API_KEY_ENV_VAR)
+		else:
+			# Translators: Error shown when no API key is available from config or environment.
+			message = _(
+				"No Gemini API key is configured. Set it in NVDA settings, or define {envVarName} "
+				"in the environment.",
+			).format(envVarName=config_store.API_KEY_ENV_VAR)
+		wx.CallAfter(wx.MessageBox, message, _("Error"), wx.OK | wx.ICON_ERROR)
+
 	def onSettings(self, evt: wx.Event) -> None:
 		# Import panel locally to avoid circular dep if needed, or pass class
 		from .settings import NativeSpeechSettingsPanel
@@ -359,8 +376,8 @@ class NativeSpeechDialog(wx.Dialog):
 			)
 			return
 
-		if not self.apiKey:
-			wx.CallAfter(wx.MessageBox, _("No GEMINI_API_KEY configured."), _("Error"), wx.OK | wx.ICON_ERROR)
+		apiKey = self._resolveApiKeyForUse()
+		if not apiKey:
 			return
 
 		# Get current settings
@@ -373,7 +390,7 @@ class NativeSpeechDialog(wx.Dialog):
 
 			# Show TalkWithAI dialog
 			# We use gui.mainFrame as parent since self is being destroyed
-			dlg = talkWithAI.TalkWithAIDialog(gui.mainFrame, self.apiKey, voiceName, styleInstructions)
+			dlg = talkWithAI.TalkWithAIDialog(gui.mainFrame, apiKey, voiceName, styleInstructions)
 			dlg.ShowModal()
 		except Exception as e:
 			log.error(f"Failed to open TalkWithAI dialog: {e}", exc_info=True)
@@ -395,13 +412,8 @@ class NativeSpeechDialog(wx.Dialog):
 				wx.OK | wx.ICON_ERROR,
 			)
 			return
-		if not self.apiKey:
-			wx.CallAfter(
-				wx.MessageBox,
-				_("No GEMINI_API_KEY configured. Set it in NVDA settings."),
-				_("Error"),
-				wx.OK | wx.ICON_ERROR,
-			)
+		apiKey = self._resolveApiKeyForUse()
+		if not apiKey:
 			return
 		text = self.textCtrl.GetValue().strip()
 		if not text:
@@ -418,13 +430,13 @@ class NativeSpeechDialog(wx.Dialog):
 		self.playBtn.Enable(False)
 		self.saveBtn.Enable(False)
 		self.talkBtn.Enable(False)
-		threading.Thread(target=self._generateThread, args=(text,), daemon=True).start()
+		threading.Thread(target=self._generateThread, args=(text, apiKey), daemon=True).start()
 
-	def _generateThread(self, text: str) -> None:
+	def _generateThread(self, text: str, apiKey: str) -> None:
 		ui.message(_("Generating speech, please wait..."))
 		try:
 			with getRuntimeScope():
-				self.client = genai.Client(api_key=self.apiKey)
+				self.client = genai.Client(api_key=apiKey)
 		except Exception as e:
 			log.error(f"Failed init genai client: {e}", exc_info=True)
 			if not self.isClosed:

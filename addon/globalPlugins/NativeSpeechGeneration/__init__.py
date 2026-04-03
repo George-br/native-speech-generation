@@ -3,12 +3,12 @@ import os
 import wx
 import addonHandler
 import globalPluginHandler
-import config
 import gui
 from logHandler import log
 from scriptHandler import script
 from typing import Any, TYPE_CHECKING
-from .core.constants import CONFIG_DOMAIN
+
+from .core import config_store
 
 # Initialize translation
 addonHandler.initTranslation()
@@ -92,9 +92,7 @@ else:
 		def __init__(self) -> None:
 			super().__init__()
 			self.dialog = None  # Track active dialog instance
-			if CONFIG_DOMAIN not in config.conf:
-				config.conf[CONFIG_DOMAIN] = {"apiKey": ""}
-			config.conf.spec[CONFIG_DOMAIN] = {"apiKey": "string(default='')"}
+			config_store.prepare_config_for_startup(persist=True)
 
 			# Register settings panel
 			# Note: We check if it is already registered

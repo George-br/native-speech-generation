@@ -15,7 +15,10 @@ Key Features:
 
 To get started, obtain a Gemini API key from Google AI Studio and enter it in the add-on's settings panel, found under NVDA's Tools menu."""),
 	addon_version="1.5.6",
-	addon_changelog=_("""- Talk With AI: Added optional session memory and a clear-memory control.
+	addon_changelog=_("""- Security: Gemini API keys are now stored with Windows DPAPI instead of plaintext config.
+- Stability: Preserved add-on configuration across updates so API keys are no longer wiped by the uninstall/update flow.
+- Deployment: Added GEMINI_API_KEY environment variable fallback for managed setups.
+- Talk With AI: Added optional session memory and a clear-memory control.
 - Talk With AI: Improved stream stability with reconnect backoff/retry and adaptive buffering.
 - Documentation: Added Spanish-language documentation.
 """),

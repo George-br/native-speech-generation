@@ -93,6 +93,13 @@ This add-on is designed for smooth workflows, accessibility-first interaction, a
 5. Paste your **Gemini API Key** into the *GEMINI API Key* field.
 6. Click **OK** to save.
 
+Saved keys are stored securely using **Windows DPAPI**, so the encrypted value cannot be
+decrypted on a different Windows machine or user account.
+
+For advanced deployments, you can also provide the key through the
+**`GEMINI_API_KEY`** environment variable. The add-on will use it automatically when
+no stored key is available.
+
 ---
 
 ## How to Use
