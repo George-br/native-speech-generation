@@ -58,8 +58,8 @@ This add-on is designed for smooth workflows, accessibility-first interaction, a
 * **Grounding with Google Search**: Enable the AI to access real-time information from the web during your chat.
 * **Interruptible**: You can interrupt the AI at any time by speaking or pressing "Stop Conversation".
 * **Customizable**: Uses your selected voice and style instructions.
-* **Session Memory (Optional)**: Keep temporary conversation context during the current Talk With AI session for more coherent follow-up responses.
-* **Clear Memory Control**: Clear temporary session memory before starting a conversation (or after stopping).
+* **Thinking Level Control**: Choose `No Thinking`, `Low`, `Medium`, or `High` depending on the reasoning depth you want.
+* **Reconnect Continuity**: Recent conversation context is restored automatically after a reconnect, without a separate memory toggle.
 * **More Stable Streaming**: Improved reconnection behavior (backoff + retry) and adaptive audio buffering for better resilience on unstable networks.
 
 ---
@@ -92,6 +92,13 @@ This add-on is designed for smooth workflows, accessibility-first interaction, a
 4. This opens NVDA Settings directly in the *Native Speech Generation* category.
 5. Paste your **Gemini API Key** into the *GEMINI API Key* field.
 6. Click **OK** to save.
+
+Saved keys are stored securely using **Windows DPAPI**, so the encrypted value cannot be
+decrypted on a different Windows machine or user account.
+
+For advanced deployments, you can also provide the key through the
+**`GEMINI_API_KEY`** environment variable. The add-on will use it automatically when
+no stored key is available.
 
 ---
 
@@ -165,8 +172,7 @@ Experience a natural, two-way voice conversation with Gemini.
    * **Stop Conversation**: Ends the session.
    * **Grounding with Google Search**: Check this box to allow Gemini to search the web for answers (e.g., current news, weather).
      * *Note: This checkbox is hidden while a conversation is active. Stop the conversation to change it.*
-   * **Use session memory**: Keep temporary memory for the current conversation session only.
-   * **Clear memory now**: Clear temporary memory before starting (or after stopping) a conversation.
+   * **Thinking level**: Choose `No Thinking`, `Low`, `Medium`, or `High`.
    * **Microphone Toggle**: Mute/Unmute your microphone.
    * **Volume**: Adjust the AI's playback volume.
 
@@ -231,13 +237,15 @@ If you want to develop or modify this add-on, follow the steps below.
 
 ### Additional Dependencies
 
-Install the Gemini SDK and pyaudio directly into the add-on library path:
+Install the audio-only Talk With AI dependencies directly into the add-on library path:
 
 ```
 python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Speech-Generation/addon/globalPlugins/NativeSpeechGeneration/lib"
 ```
 
 Adjust the path according to your local add-on source directory.
+
+For the current audio-only Talk With AI implementation, you do not need `opencv-python`, `pillow`, or `mss`.
 
 Then copy the following from your Python installation into:
 

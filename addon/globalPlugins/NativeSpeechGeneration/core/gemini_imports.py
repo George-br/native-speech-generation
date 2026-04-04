@@ -13,6 +13,9 @@ _RUNTIME = load_runtime(_LIB_DIR)
 genai = _RUNTIME.genai
 types = _RUNTIME.types
 pyaudio = _RUNTIME.pyaudio
+VENDOR_VERSIONS = dict(_RUNTIME.versions)
+GENAI_IMPORT_ERROR = _RUNTIME.genaiError
+PYAUDIO_IMPORT_ERROR = _RUNTIME.pyaudioError
 
 GENAI_AVAILABLE = _RUNTIME.genaiAvailable
 PYAUDIO_AVAILABLE = _RUNTIME.pyaudioAvailable
@@ -21,6 +24,9 @@ __all__ = [
 	"genai",
 	"types",
 	"pyaudio",
+	"VENDOR_VERSIONS",
+	"GENAI_IMPORT_ERROR",
+	"PYAUDIO_IMPORT_ERROR",
 	"GENAI_AVAILABLE",
 	"PYAUDIO_AVAILABLE",
 	"getRuntimeScope",

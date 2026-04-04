@@ -14,8 +14,14 @@ Key Features:
 - Seamless Workflow: The add-on provides instant audio playback upon generation and allows you to save the resulting .wav file for later use.
 
 To get started, obtain a Gemini API key from Google AI Studio and enter it in the add-on's settings panel, found under NVDA's Tools menu."""),
-	addon_version="1.5.6",
-	addon_changelog=_("""- Talk With AI: Added optional session memory and a clear-memory control.
+	addon_version="1.6.0",
+	addon_changelog=_("""- Security: Gemini API keys are now stored with Windows DPAPI instead of plaintext config.
+- Stability: Preserved add-on configuration across updates so API keys are no longer wiped by the uninstall/update flow.
+- Deployment: Added GEMINI_API_KEY environment variable fallback for managed setups.
+- Talk With AI: Migrated to gemini-3.1-flash-live-preview with Live API thinking controls.
+- Talk With AI: Replaced the memory UI with No Thinking, Low, Medium, and High.
+- Talk With AI: Preserved reconnect continuity internally by replaying recent transcript history after reconnects.
+- Talk With AI: Kept style instructions as the Live API system instruction and retained Google Search grounding.
 - Talk With AI: Improved stream stability with reconnect backoff/retry and adaptive buffering.
 - Documentation: Added Spanish-language documentation.
 """),

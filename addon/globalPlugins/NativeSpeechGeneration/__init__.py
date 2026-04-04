@@ -3,14 +3,13 @@ import os
 import wx
 import addonHandler
 import globalPluginHandler
-import config
 import gui
 from logHandler import log
 from scriptHandler import script
 from typing import Any, TYPE_CHECKING
-from .core.constants import CONFIG_DOMAIN
 
-# Initialize translation
+from .core import config_store
+
 addonHandler.initTranslation()
 
 if TYPE_CHECKING:
@@ -19,14 +18,11 @@ if TYPE_CHECKING:
 		return msg
 
 
-# Initialization & Dependency Management
 pkgDir = os.path.dirname(os.path.abspath(__file__))
 
-# Libs setup
 try:
 	from . import lib_updater
 
-	# Run trash cleanup and init
 	lib_updater.initialize()
 	libDir = lib_updater.LIB_DIR
 except Exception as e:
@@ -50,7 +46,7 @@ else:
 	LIBS_AVAILABLE = True
 
 if not LIBS_AVAILABLE:
-	# Dummy Plugin
+
 	class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		"""
 		A dummy plugin that informs the user that the addon is not ready
@@ -75,29 +71,19 @@ if not LIBS_AVAILABLE:
 			)
 
 else:
-	# Full Functionality
-	# Import GUI components only when libs are available to avoid import errors
 	try:
-		# We use local imports inside the class or method where possible to avoid circular deps during init
-		# But GlobalPlugin needs to register settings panel on init.
 		from .interface.settings import NativeSpeechSettingsPanel
 		from .interface.generation_dialog import NativeSpeechDialog
 	except ImportError as e:
 		log.error(f"Failed to import GUI components: {e}", exc_info=True)
-		# Fallback to dummy plugin or raise?
-		# If we can't load GUI, we can't run.
-		raise e
+		raise
 
 	class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		def __init__(self) -> None:
 			super().__init__()
-			self.dialog = None  # Track active dialog instance
-			if CONFIG_DOMAIN not in config.conf:
-				config.conf[CONFIG_DOMAIN] = {"apiKey": ""}
-			config.conf.spec[CONFIG_DOMAIN] = {"apiKey": "string(default='')"}
+			self.dialog = None
+			config_store.prepare_config_for_startup(persist=True)
 
-			# Register settings panel
-			# Note: We check if it is already registered
 			if NativeSpeechSettingsPanel not in gui.settingsDialogs.NVDASettingsDialog.categoryClasses:
 				gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(NativeSpeechSettingsPanel)
 
@@ -156,6 +142,6 @@ else:
 				gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(NativeSpeechSettingsPanel)
 			try:
 				gui.mainFrame.sysTrayIcon.toolsMenu.Remove(self.menuItem)
-			except Exception:
-				pass
+			except Exception as error:
+				log.debug(f"Failed to remove Native Speech Generation menu item: {error}", exc_info=True)
 			super().terminate()

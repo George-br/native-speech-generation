@@ -6,17 +6,17 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 'NativeSpeechGeneration' '1.5.6'\n"
+"Project-Id-Version: 'NativeSpeechGeneration' '1.6.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2026-02-20 16:58+0700\n"
-"PO-Revision-Date: 2026-02-20 17:15+0700\n"
+"POT-Creation-Date: 2026-04-04 16:18+0800\n"
+"PO-Revision-Date: 2026-04-04 16:45+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 3.9\n"
 
 #: addon\globalPlugins\NativeSpeechGeneration\lib_updater.py:57
 msgid "Downloading libraries..."
@@ -49,21 +49,21 @@ msgstr ""
 
 #: addon\globalPlugins\NativeSpeechGeneration\lib_updater.py:97
 #: addon\globalPlugins\NativeSpeechGeneration\lib_updater.py:153
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:233
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:234
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:146
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:346
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:363
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:383
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:394
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:402
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:411
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:434
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:525
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:596
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:619
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:658
-#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:126
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:277
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:278
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:131
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:336
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:355
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:388
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:405
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:417
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:440
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:531
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:599
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:621
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:659
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:139
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:191
 msgid "Error"
 msgstr "Kesalahan"
 
@@ -107,7 +107,7 @@ msgstr ""
 "dependensi dan memerlukan restart NVDA."
 
 #: addon\globalPlugins\NativeSpeechGeneration\lib_updater.py:166
-#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:88
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:159
 msgid "Confirm Reinstall"
 msgstr "Konfirmasikan Instal Ulang"
 
@@ -124,132 +124,207 @@ msgid "Missing Dependencies"
 msgstr "Kehilangan dependensi"
 
 #. Translators: Title of the dialog for the "Talk With AI" feature (REAL-TIME conversation).
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:51
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:59
 msgid "Talk With AI"
-msgstr "Bicara Dengan AI"
+msgstr "Bicara dengan AI"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:87
-msgid "PyAudio library is not installed. This feature requires PyAudio."
-msgstr "Perpustakaan PyAudio tidak diinstal. Fitur ini memerlukan PyAudio."
+#. Translators: Choice label for the lowest reasoning setting in Talk With AI.
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:94
+msgid "No Thinking"
+msgstr "Tanpa Penalaran"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:91
-msgid "Google GenAI library is not installed."
-msgstr "Pustaka Google GenAI tidak terpasang."
+#. Translators: Choice label for low reasoning depth in Talk With AI.
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:96
+msgid "Low"
+msgstr "Rendah"
 
-#. 1. Status Area
-#. Translators: Label for the status area showing connection state.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:129
+#. Translators: Choice label for medium reasoning depth in Talk With AI.
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:98
+msgid "Medium"
+msgstr "Sedang"
+
+#. Translators: Choice label for high reasoning depth in Talk With AI.
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:100
+msgid "High"
+msgstr "Tinggi"
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:110
+msgid ""
+"PyAudio is not available. This feature requires a working PyAudio "
+"installation."
+msgstr ""
+"PyAudio tidak tersedia. Fitur ini memerlukan instalasi PyAudio yang "
+"berfungsi."
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:119
+msgid "Google GenAI is not available."
+msgstr "Google GenAI tidak tersedia."
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:163
 msgid "Status"
 msgstr "Status"
 
-#. Translators: Initial status message when the dialog opens.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:132
-msgid "Ready to Connect"
-msgstr "Siap Terhubung"
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:167
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:268
+#, python-brace-format
+msgid "Status: {status}"
+msgstr "Status: {status}"
 
-#. 2. Controls Area
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:137
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:167
+msgid "Ready to Connect"
+msgstr "Siap untuk terhubung"
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:172
 msgid "Controls"
-msgstr "Controls"
+msgstr "Kontrol"
 
 #. Translators: Button to start the voice conversation.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:143
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:177
 msgid "Start Conversation"
-msgstr "Mulai Percakapan"
+msgstr "Mulai percakapan"
 
 #. Translators: Button to stop the voice conversation.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:146
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:180
 msgid "Stop Conversation"
-msgstr "Akhiri Percakapan"
+msgstr "Hentikan percakapan"
 
-#. Mic Toggle
 #. Translators: Toggle button label indicating microphone is ON.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:156
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:238
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:189
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:284
 msgid "Microphone: ON"
 msgstr "Mikrofon: AKTIF"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:166
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:197
 msgid "Microphone:"
 msgstr "Mikrofon:"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:177
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:207
 msgid "Speaker:"
 msgstr "Speaker:"
 
-#. Google Search Checkbox
-#. Translators: Checkbox to enable "Grounding", allowing the AI to search Google for answers.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:190
+#. Translators: Checkbox to enable grounding with Google Search in Talk With AI.
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:219
 msgid "Grounding with Google Search"
 msgstr "Grounding dengan Google Search"
 
-#. Translators: Checkbox to enable temporary conversation memory during this dialog session.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:195
-msgid "Use session memory"
-msgstr "Gunakan memori untuk sesi ini"
+#. Translators: Label for choosing the reasoning depth in Talk With AI.
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:225
+msgid "Thinking level:"
+msgstr "Tingkat penalaran:"
 
-#. Translators: Button to clear temporary conversation memory for the current dialog session.
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:201
-msgid "Clear memory now"
-msgstr "Hapus memori sekarang"
-
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:207
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:233
 msgid "Volume:"
 msgstr "Volume:"
 
-#. 3. Info Area (Voice only)
-#. Translators: Label for the selected voice
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:219
-msgid "Voice: "
-msgstr "Suara: "
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:244
+#, python-brace-format
+msgid "Voice: {voiceName}"
+msgstr "Suara: {voiceName}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:229
-msgid "Status: "
-msgstr "Status: "
-
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:238
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:284
 msgid "Microphone: OFF"
 msgstr "Mikrofon: NONAKTIF"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:256
-msgid "Memory cleared"
-msgstr "Memori telah dibersihkan"
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:303
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:398
+#, python-brace-format
+msgid ""
+"{baseMessage}\n"
+"\n"
+"Import detail: {errorDetail}"
+msgstr ""
+"{baseMessage}\n"
+"\n"
+"Import detail: {errorDetail}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:337
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:387
+#, python-brace-format
+msgid ""
+"Installed google-genai library ({version}) does not support the Gemini 3.1 "
+"Live API features required by Talk With AI. Missing: {missing}. Please "
+"update the add-on libraries."
+msgstr ""
+"Pustaka google-genai yang terpasang ({version}) tidak mendukung fitur Gemini "
+"3.1 Live API yang diperlukan untuk Bicara dengan AI. Yang tidak tersedia: "
+"{missing}. Harap perbarui pustaka add-on."
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:393
+#, python-brace-format
+msgid ""
+"Installed google-genai library does not support the Gemini 3.1 Live API "
+"features required by Talk With AI. Missing: {missing}. Please update the add-"
+"on libraries."
+msgstr ""
+"Pustaka google-genai yang terpasang tidak mendukung fitur Gemini 3.1 Live "
+"API yang diperlukan untuk Bicara dengan AI. Yang tidak tersedia: {missing}. "
+"Harap perbarui pustaka add-on."
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:434
 msgid "Connecting..."
 msgstr "Menghubungkan..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:345
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:442
 msgid "Disconnecting..."
 msgstr "Memutuskan koneksi..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:656
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:599
+msgid "Google GenAI types are not available."
+msgstr "Tipe Google GenAI tidak tersedia."
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:622
+msgid ""
+"Failed to prepare the Gemini Live configuration. Please update the add-on "
+"libraries."
+msgstr ""
+"Gagal menyiapkan konfigurasi Gemini Live. Harap perbarui pustaka add-on."
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:632
+#, python-brace-format
+msgid ""
+"The installed google-genai library ({version}) is too old for Gemini 3.1 "
+"Live sessions. Missing session method: {methodName}. Please update the add-"
+"on libraries."
+msgstr ""
+"Pustaka google-genai yang terpasang ({version}) terlalu lama untuk sesi "
+"Gemini 3.1 Live. Metode sesi yang tidak tersedia: {methodName}. Harap "
+"perbarui pustaka add-on."
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:640
+#, python-brace-format
+msgid ""
+"The installed google-genai library is too old for Gemini 3.1 Live sessions. "
+"Missing session method: {methodName}. Please update the add-on libraries."
+msgstr ""
+"Pustaka google-genai yang terpasang terlalu lama untuk sesi Gemini 3.1 Live. "
+"Metode sesi yang tidak tersedia: {methodName}. Harap perbarui pustaka add-on."
+
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:788
 msgid "Connected"
 msgstr "Terhubung"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:698
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:835
 #, python-brace-format
 msgid "Connection lost. Retrying in {seconds:.1f}s"
 msgstr "Koneksi terputus. Mencoba lagi dalam {seconds:.1f}s"
 
-#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:752
+#: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:888
 msgid "Ready"
 msgstr "Siap"
 
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:61
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:115
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:56
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:100
 msgid "Open the Native Speech Generation dialog"
 msgstr "Membuka add-on Native Speech Generation"
 
 #. Translators: Title of the settings panel in NVDA preferences.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:62
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:116
-#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:29
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:57
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:101
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:25
 #: buildVars.py:6
 msgid "Native Speech Generation"
 msgstr "Native Speech Generation"
 
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:69
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:64
 msgid ""
 "Native Speech Generation is installing dependencies. Please restart NVDA for "
 "the changes to take effect."
@@ -258,22 +333,22 @@ msgstr ""
 "perubahan berlaku."
 
 #. Translators: Title of the information dialog recommending a restart.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:73
-#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:115
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:68
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:180
 msgid "Restart Required"
 msgstr "Restart diperlukan"
 
 #. Translators: Name of the add-on in the NVDA Tools menu.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:108
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:93
 msgid "&Native Speech Generation"
 msgstr "&Native Speech Generation"
 
 #. Translators: Tooltip or description for the menu item.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:110
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:95
 msgid "Generate speech using Gemini TTS"
 msgstr "Hasilkan Ucapan Menggunakan Gemini TTS"
 
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:130
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:115
 msgid ""
 "The Native Speech Generation add-on is already open. Please close the dialog "
 "before opening it again."
@@ -282,141 +357,157 @@ msgstr ""
 "membukanya lagi."
 
 #. Translators: Title of warning dialog when user tries to open the add-on twice.
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:133
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:118
 msgid "Add-on Already Running"
 msgstr "Add-on sudah berjalan"
 
-#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:145
+#: addon\globalPlugins\NativeSpeechGeneration\__init__.py:130
 #, python-brace-format
 msgid "Failed to open Native Speech Generation dialog: {error}"
 msgstr "Gagal menjalankan add-on Native Speech Generation: {error}"
 
 #. Translators: The title of the main dialog window for generating speech.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:48
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:44
 msgid "Native Speech Generation (Gemini TTS)"
 msgstr "Native Speech Generation (Gemini TTS)"
 
-#. Text Input
 #. Translators: Label for the text area where user inputs text to be converted to speech.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:73
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:65
 msgid "&Type text to convert here:"
 msgstr "&Masukkan teks yang ingin anda jadikan audio:"
 
-#. Style Input
 #. Translators: Label for optional instructions on how the speech should be spoken (e.g. "Happy", "Sad").
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:80
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:71
 msgid "&Style instructions (optional):"
 msgstr "&Gaya bicara TTS (optional):"
 
 #. Translators: Label for selecting the AI model to use for generation.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:88
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:78
 msgid "Select &Model:"
 msgstr "Pilih &Model:"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:89
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:79
 msgid "Flash (Standard Quality)"
 msgstr "Flash (kualitas standar)"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:89
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:79
 msgid "Pro (High Quality)"
 msgstr "Pro (kualitas tinggi)"
 
 #. Translators: Radio button to select single speaker mode.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:96
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:86
 msgid "Single-speaker"
 msgstr "Satu pembicara"
 
 #. Translators: Radio button to select multi-speaker mode.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:98
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:88
 msgid "Multi-speaker (2)"
 msgstr "Multi pembicara"
 
-#. Settings Toggle
 #. Translators: Checkbox to show advanced settings like Temperature.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:108
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:97
 msgid "Advanced Settings (&Temperature)"
 msgstr "Pengaturan lanjutan (&Temperature)"
 
 #. Translators: Label for the temperature slider which controls creativity of the AI.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:119
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:107
 msgid "Temperature:"
 msgstr "Temperature:"
 
 #. Translators: Button to start generating the speech audio.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:147
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:533
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:133
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:539
 msgid "&Generate Speech"
 msgstr "&Hasilkan Audio"
 
 #. Translators: Button to play the generated audio.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:152
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:138
 msgid "&Play"
 msgstr "&Putar"
 
 #. Translators: Button to save the generated audio to a file.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:158
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:144
 msgid "Save &Audio"
 msgstr "Simpan &Audio"
 
-#. Talk With AI Button
 #. Translators: Button to open the real-time conversation dialog.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:167
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:152
 msgid "Talk With &AI"
 msgstr "Bicara Dengan & AI"
 
 #. Translators: Button to open settings specifically for configuring the API key.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:174
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:158
 msgid "API Key Settings"
 msgstr "Pengaturan Kunci API"
 
 #. Translators: Button that opens a web browser to view available voices in Google AI Studio.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:177
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:161
 msgid "View voices in AI Studio"
 msgstr "Periksa Suara di AI Studio"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:183
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:167
 msgid "&Close"
 msgstr "&Tutup"
 
 #. Translators: Label for selecting a voice in single speaker mode.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:201
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:185
 msgid "Select &Voice:"
 msgstr "Pilih &Suara:"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:202
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:221
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:237
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:186
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:204
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:219
 msgid "Loading voices..."
 msgstr "Memuat suara ..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:218
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:201
 msgid "Speaker 1 Name:"
 msgstr "Nama Pembicara 1:"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:219
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:471
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:202
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:477
 msgid "Speaker1"
 msgstr "Pembicara1"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:220
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:236
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:203
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:218
 msgid "Voice:"
 msgstr "Suara:"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:234
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:216
 msgid "Speaker 2 Name:"
 msgstr "Nama Pembicara 2:"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:235
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:472
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:217
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:478
 msgid "Speaker2"
 msgstr "Pembicara2"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:345
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:327
+#, python-brace-format
+msgid ""
+"The stored Gemini API key could not be decrypted on this Windows user or "
+"machine. Please enter it again in NVDA settings, or define {envVarName} in "
+"the environment."
+msgstr ""
+"Kunci API Gemini yang tersimpan tidak dapat didekripsi pada pengguna atau "
+"mesin Windows ini. Silakan masukkan kembali di pengaturan NVDA, atau "
+"definisikan {envVarName} di lingkungan."
+
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:333
+#, python-brace-format
+msgid ""
+"No Gemini API key is configured. Set it in NVDA settings, or define "
+"{envVarName} in the environment."
+msgstr ""
+"Tidak ada kunci API Gemini yang dikonfigurasi. Atur di pengaturan NVDA, atau "
+"tentukan {envVarName} di lingkungan."
+
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:354
 msgid "Talk With AI module is missing."
 msgstr "Modul Bicara Dengan AI tidak ada."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:355
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:364
 msgid ""
 "Talk With AI currently does not support multi-speaker mode. Please select "
 "Single-speaker."
@@ -424,109 +515,102 @@ msgstr ""
 "Talk With AI saat ini tidak mendukung mode multi-speaker. Harap pilih "
 "singgle speaker."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:357
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:366
 msgid "Feature Limitation"
 msgstr "Batasan Fitur"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:363
-msgid "No GEMINI_API_KEY configured."
-msgstr ""
-"Tidak ada GEMINI_API_KEY yang dimasukkan, silahkan atur terlebih dahulu."
-
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:382
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:387
 #, python-brace-format
 msgid "Failed to open Talk With AI: {error}"
 msgstr "Gagal membuka Bicara Dengan AI: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:393
-msgid "google-genai library not installed. Please restart NVDA."
-msgstr "perpustakaan Google-Genai tidak diinstal. Harap restart NVDA."
-
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:401
-msgid "No GEMINI_API_KEY configured. Set it in NVDA settings."
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:396
+msgid ""
+"google-genai is not available. Please restart NVDA after updating the add-on "
+"libraries."
 msgstr ""
-"Tidak ada kunci API  Gemini yang anda masukkan. Silahkan atur terlebih "
-"dahulu di pengaturan NVDA, kategory NativeSpeechGeneration."
+"google-genai tidak tersedia. Silakan mulai ulang NVDA setelah memperbarui "
+"pustaka add-on."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:410
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:416
 msgid "Please enter text to generate."
 msgstr "Harap masukkan teks terlebih dahulu."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:417
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:423
 msgid "Generating..."
 msgstr "Sedang memproses..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:424
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:430
 msgid "Generating speech, please wait..."
 msgstr "Sedang menghasilkan audio, harap tunggu..."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:433
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:439
 #, python-brace-format
 msgid "Failed to initialize Google GenAI client: {error}"
 msgstr "Gagal menginisialisasi klien Google Genai: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:444
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:450
 msgid "Failed to generate audio."
 msgstr "Gagal menghasilkan audio."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:446
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:452
 msgid "Generation complete."
 msgstr "Selesai membuat audio."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:520
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:526
 msgid "An error occurred during generation."
 msgstr "Terjadi kesalahan selama menghasilkan audio."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:524
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:530
 #, python-brace-format
 msgid "An unexpected error occurred: {error}"
 msgstr "Terjadi kesalahan yang tidak terduga: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:595
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:598
 msgid "No inline audio data returned by model."
 msgstr "Tidak ada data audio inline yang dikembalikan oleh model."
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:618
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:620
 #, python-brace-format
 msgid "Failed to generate speech: {error}"
 msgstr "Gagal menghasilkan ucapan: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:637
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:638
 msgid "Save Audio File"
 msgstr "Simpan file audio"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:638
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:639
 msgid "WAV files (*.wav)|*.wav|MP3 files (*.mp3)|*.mp3"
 msgstr "Berkas WAV (*.wav)|*.wav|Berkas Mp3 (*.mp3)|*.mp3"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:650
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:651
 #, python-brace-format
 msgid "Audio saved to {path}"
 msgstr "Audio disimpan ke {path}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:651
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:652
 msgid "Success"
 msgstr "Success"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:657
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:658
 #, python-brace-format
 msgid "Failed to save audio: {error}"
 msgstr "Gagal menyimpan audio: {error}"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:672
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:673
 msgid "Sample not available"
 msgstr "Suara sampel tidak tersedia"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:677
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:678
 msgid "Playing voice sample"
 msgstr "Memainkan sampel suara"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:682
+#: addon\globalPlugins\NativeSpeechGeneration\interface\generation_dialog.py:683
 msgid "Failed to play sample"
 msgstr "Gagal memainkan sampel audio"
 
 #. Translators: Label for the input field where user enters their Gemini API Key.
-#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:38
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:39
 msgid "&Gemini API Key:"
 msgstr "& Kunci API Gemini:"
 
@@ -535,20 +619,52 @@ msgstr "& Kunci API Gemini:"
 msgid "Show API Key"
 msgstr "Tampilkan kunci API"
 
-#. Add the row to the main settings sizer
-#. Set initial state
 #. Translators: Button starting a process to help user get an API key (opens a website).
-#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:60
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:67
 msgid "&How to get API Key..."
 msgstr "&Cara Mendapatkan Kunci API..."
 
-#. Reinstall libraries button
 #. Translators: Button to force a reinstallation of external dependencies (Python libraries).
-#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:66
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:72
 msgid "&Reinstall Libraries"
 msgstr "&Instal ulang Librarys"
 
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:81
+#, python-brace-format
+msgid ""
+"The stored API key could not be decrypted on this Windows user or machine. "
+"Using {envVarName} from the environment instead. Enter a new key here to "
+"replace it."
+msgstr ""
+"Kunci API yang tersimpan tidak dapat didekripsi pada pengguna atau perangkat "
+"Windows ini. Sebagai gantinya, {envVarName} dari lingkungan akan digunakan. "
+"Masukkan kunci baru di sini untuk menggantikannya."
+
 #: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:87
+#, python-brace-format
+msgid ""
+"The stored API key could not be decrypted on this Windows user or machine. "
+"Enter a new key here, or set {envVarName} in the environment."
+msgstr ""
+"Kunci API yang tersimpan tidak dapat didekripsi pada pengguna atau perangkat "
+"Windows ini. Masukkan kunci baru di sini, atau atur {envVarName} di "
+"lingkungan."
+
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:94
+#, python-brace-format
+msgid ""
+"Using {envVarName} from the environment. Saving a key here will override it."
+msgstr ""
+"Menggunakan {envVarName} dari lingkungan. Menyimpan kunci di sini akan "
+"menimpanya."
+
+#. Translators: Error shown if Windows DPAPI storage fails while saving the API key.
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:138
+#, python-brace-format
+msgid "Failed to save the Gemini API key securely: {error}"
+msgstr "Gagal menyimpan kunci API Gemini dengan aman: {error}"
+
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:158
 msgid ""
 "This will delete the existing library and restart NVDA to redownload it.\n"
 "Are you sure?"
@@ -557,13 +673,22 @@ msgstr ""
 "mengunduhnya ulang.\n"
 "Apakah kamu yakin?"
 
-#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:114
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:179
 msgid ""
 "Library removed successfully. NVDA will now restart to download the latest "
 "version."
 msgstr ""
 "Library berhasil dihapus. NVDA sekarang akan memulai ulang untuk mengunduh "
 "versi terbaru."
+
+#: addon\globalPlugins\NativeSpeechGeneration\interface\settings.py:190
+#, python-brace-format
+msgid ""
+"Failed to remove library: {error}\n"
+"Please check log."
+msgstr ""
+"Gagal menghapus pustaka: {error}\n"
+"Silakan periksa log."
 
 #: buildVars.py:7
 msgid ""
@@ -618,44 +743,38 @@ msgstr ""
 
 #: buildVars.py:18
 msgid ""
-"- Talk With AI: Added optional session memory and a clear-memory control.\n"
+"- Security: Gemini API keys are now stored with Windows DPAPI instead of "
+"plaintext config.\n"
+"- Stability: Preserved add-on configuration across updates so API keys are "
+"no longer wiped by the uninstall/update flow.\n"
+"- Deployment: Added GEMINI_API_KEY environment variable fallback for managed "
+"setups.\n"
+"- Talk With AI: Migrated to gemini-3.1-flash-live-preview with Live API "
+"thinking controls.\n"
+"- Talk With AI: Replaced the memory UI with No Thinking, Low, Medium, and "
+"High.\n"
+"- Talk With AI: Preserved reconnect continuity internally by replaying "
+"recent transcript history after reconnects.\n"
+"- Talk With AI: Kept style instructions as the Live API system instruction "
+"and retained Google Search grounding.\n"
 "- Talk With AI: Improved stream stability with reconnect backoff/retry and "
 "adaptive buffering.\n"
 "- Documentation: Added Spanish-language documentation.\n"
 msgstr ""
-"- Bicara Dengan AI: Menambahkan memori sesi opsional dan kontrol memori yang "
-"jelas.\n"
-"- Bicara Dengan AI: Peningkatan stabilitas streaming dengan koneksi ulang "
-"backoff/coba lagi dan buffering adaptif.\n"
+"- Keamanan: Kunci API Gemini sekarang disimpan dengan Windows DPAPI, bukan "
+"lagi dalam konfigurasi teks biasa.\n"
+"- Stabilitas: Konfigurasi add-on kini tetap dipertahankan saat pembaruan, "
+"sehingga kunci API tidak lagi terhapus saat proses uninstall atau update.\n"
+"- Deployment: Menambahkan dukungan variabel lingkungan GEMINI_API_KEY untuk "
+"lingkungan yang dikelola.\n"
+"- Bicara dengan AI: Bermigrasi ke gemini-3.1-flash-live-preview dengan "
+"kontrol penalaran Live API.\n"
+"- Bicara dengan AI: Antarmuka memori diganti dengan Tanpa Penalaran, Rendah, "
+"Sedang, dan Tinggi.\n"
+"- Bicara dengan AI: Kontinuitas setelah koneksi ulang kini dipertahankan "
+"secara internal dengan memutar ulang riwayat transkrip terbaru.\n"
+"- Bicara dengan AI: Instruksi gaya tetap digunakan sebagai instruksi sistem "
+"Live API, dan grounding Google Search tetap dipertahankan.\n"
+"- Bicara dengan AI: Stabilitas streaming ditingkatkan dengan reconnect/retry "
+"dan buffering adaptif.\n"
 "- Dokumentasi: Menambahkan dokumentasi berbahasa Spanyol.\n"
-
-#~ msgid ""
-#~ "- Stability: Restored previous dependency handling to resolve crashes "
-#~ "(pyo3 panic).\n"
-#~ "- Localization: Fixed translation issues for Interface and Settings "
-#~ "dialogs.\n"
-#~ "- Fix: Resolved SSL Certificate path error.\n"
-#~ msgstr ""
-#~ "- Stabilitas: Memulihkan penanganan ketergantungan sebelumnya untuk "
-#~ "mengatasi kerusakan (panik pyo3).\n"
-#~ "- Lokalisasi: Memperbaiki masalah terjemahan untuk dialog Antarmuka dan "
-#~ "Pengaturan.\n"
-#~ "- Perbaiki: Kesalahan jalur Sertifikat SSL teratasi.\n"
-
-#~ msgid ""
-#~ "- Code Refactoring: Complies with NVDA coding standards (Tabs, "
-#~ "CamelCase).\n"
-#~ "- Optimized Update: Preserves library files to avoid redownloading data.\n"
-#~ "- Improved UX: Restored device selection in \"Talk With AI\", better "
-#~ "button states, and fixed dialog closing behavior.\n"
-#~ "- Fix: Resolved namespace conflicts and ensured proper stream "
-#~ "cancellation.\n"
-#~ msgstr ""
-#~ "- Refactoring Kode: Mematuhi standar pengkodean NVDA (Tab, CamelCase).\n"
-#~ "- Pembaruan yang Dioptimalkan: Mempertahankan berkas pustaka untuk "
-#~ "menghindari pengunduhan ulang data.\n"
-#~ "- Peningkatan UX: Pemilihan perangkat dipulihkan di \"Bicara Dengan AI\", "
-#~ "status tombol yang lebih baik, dan perilaku penutupan dialog yang "
-#~ "diperbaiki.\n"
-#~ "- Perbaikan: Menyelesaikan konflik ruang nama dan memastikan pembatalan "
-#~ "aliran yang tepat.\n"
