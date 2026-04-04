@@ -21,7 +21,7 @@ from ..core.constants import (
 )
 from ..core import config_store
 from ..core.audio_utils import convertToWav, mergeWavFiles, saveBinaryFile, safeStartFile
-from ..core.gemini_imports import GENAI_AVAILABLE, genai, getRuntimeScope, types
+from ..core.gemini_imports import GENAI_AVAILABLE, GENAI_IMPORT_ERROR, genai, getRuntimeScope, types
 
 from .. import talkWithAI
 
@@ -31,10 +31,8 @@ if TYPE_CHECKING:
 		return msg
 
 
-# Initialize translation
 addonHandler.initTranslation()
 
-# Need to know addon_dir for saving "last_audio_generated"
 _guiDir = os.path.dirname(os.path.abspath(__file__))
 _pkgDir = os.path.dirname(_guiDir)
 _globalPluginsDir = os.path.dirname(_pkgDir)
@@ -54,6 +52,7 @@ class NativeSpeechDialog(wx.Dialog):
 		self.selectedVoiceIdx2 = 0
 		self.isGenerating = False
 		self.client = None
+		self.currentStream = None
 		self.isClosed = False
 
 		self._buildUi()
@@ -63,21 +62,18 @@ class NativeSpeechDialog(wx.Dialog):
 	def _buildUi(self) -> None:
 		mainSizer = wx.BoxSizer(wx.VERTICAL)
 
-		# Text Input
 		# Translators: Label for the text area where user inputs text to be converted to speech.
 		textLabel = wx.StaticText(self, label=_("&Type text to convert here:"))
 		self.textCtrl = wx.TextCtrl(self, style=wx.TE_MULTILINE, size=(520, 160))
 		mainSizer.Add(textLabel, flag=wx.ALL, border=6)
 		mainSizer.Add(self.textCtrl, flag=wx.EXPAND | wx.LEFT | wx.RIGHT, border=6)
 
-		# Style Input
 		# Translators: Label for optional instructions on how the speech should be spoken (e.g. "Happy", "Sad").
 		styleLabel = wx.StaticText(self, label=_("&Style instructions (optional):"))
 		self.styleCtrl = wx.TextCtrl(self, style=wx.TE_MULTILINE, size=(520, 60))
 		mainSizer.Add(styleLabel, flag=wx.ALL, border=6)
 		mainSizer.Add(self.styleCtrl, flag=wx.EXPAND | wx.LEFT | wx.RIGHT, border=6)
 
-		# Model & Mode Selection
 		modelSizer = wx.BoxSizer(wx.HORIZONTAL)
 		# Translators: Label for selecting the AI model to use for generation.
 		modelLabel = wx.StaticText(self, label=_("Select &Model:"))
@@ -98,13 +94,11 @@ class NativeSpeechDialog(wx.Dialog):
 		modelSizer.Add(self.modeMultiRb, flag=wx.ALL, border=6)
 		mainSizer.Add(modelSizer, flag=wx.EXPAND)
 
-		# Settings Toggle
 		# Translators: Checkbox to show advanced settings like Temperature.
 		self.settingsCheckbox = wx.CheckBox(self, label=_("Advanced Settings (&Temperature)"))
 		self.settingsCheckbox.SetValue(False)
 		mainSizer.Add(self.settingsCheckbox, flag=wx.LEFT | wx.RIGHT | wx.TOP, border=6)
 
-		# Settings Panel (Hidden)
 		self.settingsPanel = wx.Panel(self)
 		mainSizer.Add(self.settingsPanel, proportion=0, flag=wx.EXPAND | wx.LEFT | wx.RIGHT, border=6)
 
@@ -129,14 +123,12 @@ class NativeSpeechDialog(wx.Dialog):
 		self.settingsPanel.Hide()
 		self.Bind(wx.EVT_CHECKBOX, self.onToggleSettings, self.settingsCheckbox)
 
-		# Voice Panels
 		self.voicePanelSingle = self._buildVoicePanelSingle()
 		self.voicePanelMulti = self._buildVoicePanelMulti()
 		mainSizer.Add(self.voicePanelSingle, flag=wx.EXPAND | wx.ALL, border=5)
 		mainSizer.Add(self.voicePanelMulti, flag=wx.EXPAND | wx.ALL, border=5)
 		self.voicePanelMulti.Hide()
 
-		# Action Buttons
 		btnSizer = wx.StdDialogButtonSizer()
 		# Translators: Button to start generating the speech audio.
 		self.generateBtn = wx.Button(self, label=_("&Generate Speech"))
@@ -157,13 +149,11 @@ class NativeSpeechDialog(wx.Dialog):
 		btnSizer.Realize()
 		mainSizer.Add(btnSizer, flag=wx.EXPAND | wx.ALL, border=10)
 
-		# Talk With AI Button
 		# Translators: Button to open the real-time conversation dialog.
 		self.talkBtn = wx.Button(self, label=_("Talk With &AI"))
 		self.talkBtn.Bind(wx.EVT_BUTTON, self.onTalkWithAi)
 		mainSizer.Add(self.talkBtn, flag=wx.ALIGN_CENTER | wx.ALL, border=5)
 
-		# Footer
 		footerSizer = wx.BoxSizer(wx.HORIZONTAL)
 		# Translators: Button to open settings specifically for configuring the API key.
 		self.getKeyBtn = wx.Button(self, label=_("API Key Settings"))
@@ -208,7 +198,6 @@ class NativeSpeechDialog(wx.Dialog):
 		panel = wx.Panel(self)
 		sizer = wx.BoxSizer(wx.VERTICAL)
 
-		# Speaker 1
 		spk1Sizer = wx.BoxSizer(wx.HORIZONTAL)
 		spk1Label = wx.StaticText(panel, label=_("Speaker 1 Name:"))
 		self.spk1NameCtrl = wx.TextCtrl(panel, value=_("Speaker1"), size=(100, -1))
@@ -224,7 +213,6 @@ class NativeSpeechDialog(wx.Dialog):
 		spk1Sizer.Add(self.voiceChoiceMulti1, proportion=1, flag=wx.EXPAND)
 		sizer.Add(spk1Sizer, flag=wx.EXPAND | wx.ALL, border=6)
 
-		# Speaker 2
 		spk2Sizer = wx.BoxSizer(wx.HORIZONTAL)
 		spk2Label = wx.StaticText(panel, label=_("Speaker 2 Name:"))
 		self.spk2NameCtrl = wx.TextCtrl(panel, value=_("Speaker2"), size=(100, -1))
@@ -245,22 +233,30 @@ class NativeSpeechDialog(wx.Dialog):
 
 	def onClose(self, evt: wx.Event) -> None:
 		self.isClosed = True
-		# Force close the stream if it's active
-		if hasattr(self, "currentStream") and self.currentStream:
-			try:
-				with getRuntimeScope():
-					self.currentStream.close()
-			except Exception:
-				pass
-
-		# Close the client
-		if self.client:
-			try:
-				with getRuntimeScope():
-					self.client.close()
-			except Exception:
-				pass
+		currentStream = self.currentStream
+		client = self.client
+		self.currentStream = None
+		self.client = None
+		if currentStream or client:
+			threading.Thread(
+				target=self._closeGenerationResources,
+				args=(currentStream, client),
+				daemon=True,
+			).start()
 		self.Destroy()
+
+	def _closeGenerationResources(self, currentStream: Any, client: Any) -> None:
+		if currentStream:
+			self._closeRuntimeResource("generation stream", currentStream.close)
+		if client:
+			self._closeRuntimeResource("generation client", client.close)
+
+	def _closeRuntimeResource(self, label: str, closer: Any) -> None:
+		try:
+			with getRuntimeScope():
+				closer()
+		except Exception as error:
+			log.debug(f"Failed to close {label}: {error}", exc_info=True)
 
 	def _tempToLabel(self, valInt: int) -> str:
 		return f"{valInt / 10.0:.1f}"
@@ -311,7 +307,6 @@ class NativeSpeechDialog(wx.Dialog):
 			voiceData = self.voices[idx]
 			if isinstance(voiceData, dict) and "name" in voiceData:
 				return voiceData["name"]
-			# Fallback
 			return str(voiceData)
 		except IndexError:
 			return self.voices[0]["name"] if self.voices else "Zephyr"
@@ -342,10 +337,8 @@ class NativeSpeechDialog(wx.Dialog):
 		wx.CallAfter(wx.MessageBox, message, _("Error"), wx.OK | wx.ICON_ERROR)
 
 	def onSettings(self, evt: wx.Event) -> None:
-		# Import panel locally to avoid circular dep if needed, or pass class
 		from .settings import NativeSpeechSettingsPanel
 
-		self.Destroy()
 		wx.CallAfter(
 			gui.mainFrame.popupSettingsDialog,
 			gui.settingsDialogs.NVDASettingsDialog,
@@ -380,17 +373,13 @@ class NativeSpeechDialog(wx.Dialog):
 		if not apiKey:
 			return
 
-		# Get current settings
 		voiceName = self._getSelectedVoiceName(self.voiceChoiceSingle, self.selectedVoiceIdx)
 		styleInstructions = self.styleCtrl.GetValue().strip()
 
 		try:
-			# Close the main dialog first
-			self.Close()
-
-			# Show TalkWithAI dialog
-			# We use gui.mainFrame as parent since self is being destroyed
-			dlg = talkWithAI.TalkWithAIDialog(gui.mainFrame, apiKey, voiceName, styleInstructions)
+			# Keep this dialog alive so the user's draft remains available if the
+			# Talk With AI dialog fails to initialize or after it closes.
+			dlg = talkWithAI.TalkWithAIDialog(self, apiKey, voiceName, styleInstructions)
 			dlg.ShowModal()
 		except Exception as e:
 			log.error(f"Failed to open TalkWithAI dialog: {e}", exc_info=True)
@@ -405,9 +394,17 @@ class NativeSpeechDialog(wx.Dialog):
 		if self.isGenerating:
 			return
 		if not GENAI_AVAILABLE:
+			message = _(
+				"google-genai is not available. Please restart NVDA after updating the add-on libraries.",
+			)
+			if GENAI_IMPORT_ERROR:
+				message = _("{baseMessage}\n\nImport detail: {errorDetail}").format(
+					baseMessage=message,
+					errorDetail=GENAI_IMPORT_ERROR,
+				)
 			wx.CallAfter(
 				wx.MessageBox,
-				_("google-genai library not installed. Please restart NVDA."),
+				message,
 				_("Error"),
 				wx.OK | wx.ICON_ERROR,
 			)
@@ -556,12 +553,10 @@ class NativeSpeechDialog(wx.Dialog):
 	) -> str | None:
 		fileIndex = 0
 		savedPaths = []
-		# Keep reference to current stream so we can close it from main thread if needed
 		self.currentStream = None
 		try:
 			if self.isClosed:
 				return None
-			# Store the stream object
 			with getRuntimeScope():
 				self.currentStream = client.models.generate_content_stream(
 					model=model,
@@ -572,11 +567,13 @@ class NativeSpeechDialog(wx.Dialog):
 			with getRuntimeScope():
 				for chunk in self.currentStream:
 					if self.isClosed:
-						# Explicitly close the stream iterator to kill connection
 						try:
 							self.currentStream.close()
-						except Exception:
-							pass
+						except Exception as error:
+							log.debug(
+								f"Failed to close generation stream during shutdown: {error}",
+								exc_info=True,
+							)
 						return None
 
 					if not getattr(chunk, "candidates", None):
@@ -621,7 +618,6 @@ class NativeSpeechDialog(wx.Dialog):
 			return savedPaths[0]
 
 		except Exception as e:
-			# If exception is due to closure, ignore
 			if self.isClosed:
 				return None
 			log.error(f"Error streaming/generating audio: {e}", exc_info=True)
@@ -633,7 +629,6 @@ class NativeSpeechDialog(wx.Dialog):
 			)
 			return None
 		finally:
-			# Cleanup stream reference
 			self.currentStream = None
 
 	def onPlay(self, evt: wx.Event) -> None:

@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 		return msg
 
 
-# Initialize translation
 addonHandler.initTranslation()
 
 
@@ -35,7 +34,6 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		sHelper = gui.guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
 		apiResolution = config_store.resolve_api_key()
 
-		# API Key Configuration Group
 		apiSizer = wx.BoxSizer(wx.HORIZONTAL)
 
 		# Translators: Label for the input field where user enters their Gemini API Key.
@@ -48,7 +46,6 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		self.apiKeyCtrlVisible = wx.TextCtrl(self, value=apiValue)
 		self.apiKeyCtrlVisible.Hide()
 
-		# Add inputs with EXPAND to fill available space
 		apiSizer.Add(self.apiKeyCtrlHidden, 1, wx.EXPAND | wx.RIGHT, 5)
 		apiSizer.Add(self.apiKeyCtrlVisible, 1, wx.EXPAND | wx.RIGHT, 5)
 
@@ -57,7 +54,6 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		self.showApiCheck.Bind(wx.EVT_CHECKBOX, self.onToggleApiVisibility)
 		apiSizer.Add(self.showApiCheck, 0, wx.ALIGN_CENTER_VERTICAL)
 
-		# Add the row to the main settings sizer
 		settingsSizer.Add(apiSizer, 0, wx.EXPAND | wx.ALL, 5)
 		self.onToggleApiVisibility(None)  # Set initial state
 
@@ -73,7 +69,6 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		sHelper.addItem(self.getKeyBtn)
 		self.getKeyBtn.Bind(wx.EVT_BUTTON, self.onGetKey)
 
-		# Reinstall libraries button
 		# Translators: Button to force a reinstallation of external dependencies (Python libraries).
 		self.reinstallBtn = wx.Button(self, label=_("&Reinstall Libraries"))
 		sHelper.addItem(self.reinstallBtn)
@@ -102,15 +97,30 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		return ""
 
 	def onToggleApiVisibility(self, event: wx.Event | None) -> None:
-		if self.showApiCheck.IsChecked():
-			self.apiKeyCtrlVisible.SetValue(self.apiKeyCtrlHidden.GetValue())
+		sourceCtrl = self.apiKeyCtrlVisible if self.apiKeyCtrlVisible.IsShown() else self.apiKeyCtrlHidden
+		targetCtrl = self.apiKeyCtrlVisible if self.showApiCheck.IsChecked() else self.apiKeyCtrlHidden
+		value = sourceCtrl.GetValue()
+		selectionStart, selectionEnd = sourceCtrl.GetSelection()
+		insertionPoint = sourceCtrl.GetInsertionPoint()
+		restoreFocus = sourceCtrl.HasFocus()
+
+		targetCtrl.SetValue(value)
+		if targetCtrl is self.apiKeyCtrlVisible:
 			self.apiKeyCtrlHidden.Hide()
 			self.apiKeyCtrlVisible.Show()
 		else:
-			self.apiKeyCtrlHidden.SetValue(self.apiKeyCtrlVisible.GetValue())
 			self.apiKeyCtrlVisible.Hide()
 			self.apiKeyCtrlHidden.Show()
 		self.Layout()
+
+		maxPos = len(value)
+		selectionStart = min(selectionStart, maxPos)
+		selectionEnd = min(selectionEnd, maxPos)
+		insertionPoint = min(insertionPoint, maxPos)
+		targetCtrl.SetSelection(selectionStart, selectionEnd)
+		targetCtrl.SetInsertionPoint(insertionPoint)
+		if restoreFocus:
+			targetCtrl.SetFocus()
 
 	def onGetKey(self, evt: wx.Event) -> None:
 		webbrowser.open("https://aistudio.google.com/apikey")
@@ -133,8 +143,10 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 
 	def isValid(self) -> bool:
 		try:
-			self._validatedApiKeyValue, self._validatedEncryptedApiKey = config_store.prepare_api_key_for_storage(
-				self._getCurrentApiKeyFieldValue(),
+			self._validatedApiKeyValue, self._validatedEncryptedApiKey = (
+				config_store.prepare_api_key_for_storage(
+					self._getCurrentApiKeyFieldValue(),
+				)
 			)
 		except config_store.ApiKeyStorageError as error:
 			self._validatedApiKeyValue = ""
@@ -154,22 +166,16 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			return
 
 		try:
-			# Try to get LIB_DIR from lib_updater, fallback if needed
 			try:
 				targetLib = lib_updater.LIB_DIR
 			except AttributeError:
-				# Fallback calculation matching __init__.py logic if lib_updater fails
-				# This path calculation assumes we are in gui/settings.py
-				# And we want .../globalPlugins/NativeSpeechGeneration/lib
 				guiDir = os.path.dirname(os.path.abspath(__file__))
 				pkgDir = os.path.dirname(guiDir)
 				targetLib = os.path.join(pkgDir, "lib")
 
 			if os.path.exists(targetLib):
-				# Rename first to avoid lock issues, let cleanupTrash handle deletion on next run
 				tempTrash = targetLib + "_trash_" + str(time.time())
 				os.rename(targetLib, tempTrash)
-				# Try to delete immediately, but ignore errors if locked
 				shutil.rmtree(tempTrash, ignore_errors=True)
 
 			wx.MessageBox(
@@ -184,7 +190,7 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		except Exception as e:
 			log.error(f"Failed to delete lib folder: {e}", exc_info=True)
 			wx.MessageBox(
-				f"Failed to remove library: {e}\nPlease check log.",
+				_("Failed to remove library: {error}\nPlease check log.").format(error=str(e)),
 				_("Error"),
 				wx.OK | wx.ICON_ERROR,
 			)

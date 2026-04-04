@@ -150,7 +150,10 @@ def _migrate_plaintext_api_key() -> bool:
 	try:
 		_set_text_setting("apiKeyEncrypted", _encrypt_api_key(legacyValue))
 	except ApiKeyStorageError:
-		log.error("Failed to migrate the legacy plaintext Gemini API key to encrypted storage.", exc_info=True)
+		log.error(
+			"Failed to migrate the legacy plaintext Gemini API key to encrypted storage.",
+			exc_info=True,
+		)
 		return False
 	_set_text_setting("apiKey", "")
 	log.info("Migrated legacy plaintext Gemini API key to DPAPI-protected storage.")
