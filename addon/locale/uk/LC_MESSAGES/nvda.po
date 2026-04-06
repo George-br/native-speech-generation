@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: 'NativeSpeechGeneration' '1.6.0'\n"
 "Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
 "POT-Creation-Date: 2026-04-04 16:18+0800\n"
-"PO-Revision-Date: 2026-04-04 16:48+0800\n"
+"PO-Revision-Date: 2026-04-06 09:21+0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: uk_UA\n"
@@ -301,7 +301,7 @@ msgstr "З'єднано"
 #: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:835
 #, python-brace-format
 msgid "Connection lost. Retrying in {seconds:.1f}s"
-msgstr ""
+msgstr "З'єднання втрачено. Повторна спроба через {seconds:.1f}s"
 
 #: addon\globalPlugins\NativeSpeechGeneration\talkWithAI.py:888
 msgid "Ready"
