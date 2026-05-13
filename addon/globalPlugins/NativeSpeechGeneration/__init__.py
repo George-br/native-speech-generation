@@ -82,7 +82,7 @@ else:
 		def __init__(self) -> None:
 			super().__init__()
 			self.dialog = None
-			config_store.prepare_config_for_startup(persist=True)
+			config_store.prepareConfigForStartup(persist=True)
 
 			if NativeSpeechSettingsPanel not in gui.settingsDialogs.NVDASettingsDialog.categoryClasses:
 				gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(NativeSpeechSettingsPanel)

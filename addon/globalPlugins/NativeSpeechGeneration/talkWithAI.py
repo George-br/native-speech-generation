@@ -13,6 +13,7 @@ import addonHandler
 import wx
 import ui
 from logHandler import log
+from typing import Any
 
 from .core.gemini_imports import (
 	GENAI_AVAILABLE,
@@ -54,7 +55,9 @@ class TalkWithAIRuntimeError(RuntimeError):
 
 
 class TalkWithAIDialog(wx.Dialog):
-	def __init__(self, parent, apiKey, voiceName, systemInstruction):
+	"""Dialog and runtime controller for Gemini Live voice conversation."""
+
+	def __init__(self, parent: wx.Window, apiKey: str, voiceName: str, systemInstruction: str) -> None:
 		# Translators: Title of the dialog for the "Talk With AI" feature (REAL-TIME conversation).
 		super().__init__(parent, title=_("Talk With AI"), size=(420, 320))
 		self.apiKey = apiKey
@@ -128,10 +131,10 @@ class TalkWithAIDialog(wx.Dialog):
 		self.Bind(wx.EVT_CLOSE, self.onClose)
 		self.Bind(wx.EVT_CHAR_HOOK, self.onCharHook)
 
-	def _logCleanupFailure(self, action, error):
+	def _logCleanupFailure(self, action: str, error: BaseException) -> None:
 		log.debug(f"Talk With AI cleanup issue during {action}: {error}", exc_info=True)
 
-	def _getDeviceList(self, input=True):
+	def _getDeviceList(self, input: bool = True) -> list[dict[str, Any]]:
 		"""Returns a list of dicts: {'index': int, 'name': str}"""
 		devices = []
 		if not PYAUDIO_AVAILABLE:
@@ -155,7 +158,8 @@ class TalkWithAIDialog(wx.Dialog):
 			p.terminate()
 		return devices
 
-	def _buildUi(self):
+	def _buildUi(self) -> None:
+		"""Build the accessible controls for starting and managing a Live API session."""
 		mainSizer = wx.BoxSizer(wx.VERTICAL)
 		panel = wx.Panel(self)
 		panelSizer = wx.BoxSizer(wx.VERTICAL)
@@ -250,7 +254,7 @@ class TalkWithAIDialog(wx.Dialog):
 		self.SetSizer(mainSizer)
 		self.CenterOnParent()
 
-	def _announceStatus(self, text, force=False):
+	def _announceStatus(self, text: str, force: bool = False) -> None:
 		message = str(text or "").strip()
 		if not message:
 			return
@@ -262,7 +266,7 @@ class TalkWithAIDialog(wx.Dialog):
 		except Exception as error:
 			self._logCleanupFailure("status announcement", error)
 
-	def updateStatus(self, text, announce=False, forceAnnouncement=False):
+	def updateStatus(self, text: str, announce: bool = False, forceAnnouncement: bool = False) -> None:
 		try:
 			if self:
 				self.statusLabel.SetLabel(_("Status: {status}").format(status=text))
@@ -271,7 +275,7 @@ class TalkWithAIDialog(wx.Dialog):
 		if announce:
 			self._announceStatus(text, force=forceAnnouncement)
 
-	def reportError(self, msg):
+	def reportError(self, msg: object) -> None:
 		try:
 			if self:
 				wx.MessageBox(str(msg), _("Error"), wx.OK | wx.ICON_ERROR)
@@ -279,25 +283,25 @@ class TalkWithAIDialog(wx.Dialog):
 		except RuntimeError:
 			return
 
-	def onMicToggle(self, evt):
+	def onMicToggle(self, evt: wx.Event) -> None:
 		self.micOn = self.micBtn.GetValue()
 		label = _("Microphone: ON") if self.micOn else _("Microphone: OFF")
 		self.micBtn.SetLabel(label)
 
-	def onVolumeChange(self, evt):
+	def onVolumeChange(self, evt: wx.Event) -> None:
 		self.volume = self.volSlider.GetValue()
 
-	def _getSelectedThinkingLevel(self):
+	def _getSelectedThinkingLevel(self) -> str:
 		selection = self.thinkingChoice.GetSelection()
 		if selection == wx.NOT_FOUND:
 			return "minimal"
 		return self.thinkingChoices[selection][1]
 
-	def _clearSessionHistory(self):
+	def _clearSessionHistory(self) -> None:
 		with self.historyLock:
 			self.sessionHistory = []
 
-	def _buildMissingDependencyMessage(self, baseMessage, errorDetail):
+	def _buildMissingDependencyMessage(self, baseMessage: str, errorDetail: str | None) -> str:
 		if not errorDetail:
 			return baseMessage
 		return _("{baseMessage}\n\nImport detail: {errorDetail}").format(
@@ -305,7 +309,7 @@ class TalkWithAIDialog(wx.Dialog):
 			errorDetail=errorDetail,
 		)
 
-	def _mergeHistoryText(self, existing, incoming):
+	def _mergeHistoryText(self, existing: str, incoming: str) -> str:
 		if not existing:
 			return incoming
 		if incoming == existing or existing.endswith(incoming):
@@ -316,7 +320,7 @@ class TalkWithAIDialog(wx.Dialog):
 			return existing
 		return f"{existing} {incoming}"
 
-	def _rememberConversationTurn(self, role, text):
+	def _rememberConversationTurn(self, role: str, text: str) -> None:
 		cleaned = str(text or "").strip()
 		if not cleaned:
 			return
@@ -330,14 +334,14 @@ class TalkWithAIDialog(wx.Dialog):
 				self.sessionHistory.append({"role": role, "text": cleaned})
 			self._trimSessionHistory()
 
-	def _trimSessionHistory(self):
+	def _trimSessionHistory(self) -> None:
 		if len(self.sessionHistory) > HISTORY_MAX_TURNS:
 			self.sessionHistory = self.sessionHistory[-HISTORY_MAX_TURNS:]
 		totalChars = sum(len(turn["text"]) for turn in self.sessionHistory)
 		while self.sessionHistory and totalChars > HISTORY_MAX_CHARS:
 			totalChars -= len(self.sessionHistory.pop(0)["text"])
 
-	def _buildReconnectHistoryTurns(self):
+	def _buildReconnectHistoryTurns(self) -> list[Any]:
 		with self.historyLock:
 			return [
 				types.Content(
@@ -348,7 +352,7 @@ class TalkWithAIDialog(wx.Dialog):
 				if turn["text"].strip()
 			]
 
-	def _buildSystemInstruction(self):
+	def _buildSystemInstruction(self) -> str:
 		baseRules = (
 			"You are a voice assistant for blind and low-vision users. "
 			"Never fabricate facts. If uncertain, explicitly say you are not sure."
@@ -359,11 +363,11 @@ class TalkWithAIDialog(wx.Dialog):
 			parts.append(f"User preference:\n{userInstruction}")
 		return "\n\n".join(parts)
 
-	def _buildReconnectDelay(self, attempt):
+	def _buildReconnectDelay(self, attempt: int) -> float:
 		baseDelay = min(BACKOFF_MAX_SECONDS, BACKOFF_BASE_SECONDS * (2 ** max(0, attempt - 1)))
 		return baseDelay + random.uniform(0.0, BACKOFF_JITTER_SECONDS)
 
-	def _getRuntimeCompatibilityError(self):
+	def _getRuntimeCompatibilityError(self) -> str | None:
 		if not GENAI_AVAILABLE:
 			return None
 		requiredTypeNames = (
@@ -399,7 +403,7 @@ class TalkWithAIDialog(wx.Dialog):
 			)
 		return None
 
-	def onConnect(self, evt):
+	def onConnect(self, evt: wx.Event) -> None:
 		if self.compatibilityError:
 			self.reportError(self.compatibilityError)
 			return
@@ -440,14 +444,14 @@ class TalkWithAIDialog(wx.Dialog):
 		self.loopThread = threading.Thread(target=self._startAsyncLoop, daemon=True)
 		self.loopThread.start()
 
-	def onDisconnect(self, evt):
+	def onDisconnect(self, evt: wx.Event) -> None:
 		self.disconnectBtn.Disable()
 		self.updateStatus(_("Disconnecting..."), announce=True)
 		if self.loop and self.loop.is_running():
 			asyncio.run_coroutine_threadsafe(self.cleanupAsync(), self.loop)
 
-	def _playSoundEffect(self, path):
-		def _bgPlay():
+	def _playSoundEffect(self, path: str) -> None:
+		def _bgPlay() -> None:
 			try:
 				if os.path.exists(path):
 					winsound.PlaySound(path, winsound.SND_FILENAME | winsound.SND_ASYNC)
@@ -456,13 +460,13 @@ class TalkWithAIDialog(wx.Dialog):
 
 		threading.Thread(target=_bgPlay, daemon=True).start()
 
-	def onCharHook(self, evt):
+	def onCharHook(self, evt: wx.Event) -> None:
 		if evt.GetKeyCode() == wx.WXK_ESCAPE:
 			self.Close()
 		else:
 			evt.Skip()
 
-	def onClose(self, evt):
+	def onClose(self, evt: wx.Event) -> None:
 		self._isClosing = True
 		self.sessionActive = False
 		self.isPlaying = False
@@ -483,14 +487,14 @@ class TalkWithAIDialog(wx.Dialog):
 
 		self.Destroy()
 
-	async def _shutdownLoop(self):
+	async def _shutdownLoop(self) -> None:
 		try:
 			await self.cleanupAsync()
 		finally:
 			loop = asyncio.get_running_loop()
 			loop.stop()
 
-	def _startAsyncLoop(self):
+	def _startAsyncLoop(self) -> None:
 		try:
 			self.loop = asyncio.new_event_loop()
 			asyncio.set_event_loop(self.loop)
@@ -511,14 +515,15 @@ class TalkWithAIDialog(wx.Dialog):
 			except Exception as error:
 				self._logCleanupFailure("async loop finalization", error)
 
-	def _flushAudioQueue(self):
+	def _flushAudioQueue(self) -> None:
 		while not self.audioQueue.empty():
 			try:
 				self.audioQueue.get_nowait()
 			except queue.Empty:
 				break
 
-	async def cleanupAsync(self):
+	async def cleanupAsync(self) -> None:
+		"""Stop the active Live API session and release audio resources."""
 		self.sessionActive = False
 		self.isPlaying = False
 		self.session = None
@@ -542,7 +547,7 @@ class TalkWithAIDialog(wx.Dialog):
 			self.audioInterface.terminate()
 			self.audioInterface = None
 
-	def _audioPlayerWorker(self):
+	def _audioPlayerWorker(self) -> None:
 		buffer = []
 		buffering = True
 		self.bufferThreshold = BUFFER_THRESHOLD
@@ -597,7 +602,7 @@ class TalkWithAIDialog(wx.Dialog):
 				log.error(f"Audio Player Error: {error}")
 				break
 
-	def _buildLiveConfig(self, includeHistorySeed):
+	def _buildLiveConfig(self, includeHistorySeed: bool) -> Any:
 		if not types:
 			raise TalkWithAIRuntimeError(_("Google GenAI types are not available."))
 		try:
@@ -625,7 +630,7 @@ class TalkWithAIDialog(wx.Dialog):
 				_("Failed to prepare the Gemini Live configuration. Please update the add-on libraries."),
 			) from error
 
-	def _assertSessionCompatibility(self, session):
+	def _assertSessionCompatibility(self, session: Any) -> None:
 		for methodName in ("send_realtime_input", "send_client_content"):
 			if not hasattr(session, methodName):
 				version = VENDOR_VERSIONS.get("google.genai", "")
@@ -646,19 +651,20 @@ class TalkWithAIDialog(wx.Dialog):
 					),
 				)
 
-	async def _seedSessionHistory(self, session):
+	async def _seedSessionHistory(self, session: Any) -> None:
 		historyTurns = self._buildReconnectHistoryTurns()
 		if not historyTurns:
 			return
 		await session.send_client_content(turns=historyTurns, turn_complete=False)
 
-	def _shouldRetryWithoutHistoryConfig(self, error, usedHistoryConfig):
+	def _shouldRetryWithoutHistoryConfig(self, error: BaseException, usedHistoryConfig: bool) -> bool:
 		if not usedHistoryConfig or not self.historyConfigSupported:
 			return False
 		message = f"{error!r}".lower()
 		return "history_config" in message or "initial_history_in_client_content" in message
 
-	async def sendAudioLoop(self, session):
+	async def sendAudioLoop(self, session: Any) -> None:
+		"""Read microphone audio and stream it to the active Live API session."""
 		while self.sessionActive:
 			if self.micOn and self.inputStream and self.inputStream.is_active():
 				try:
@@ -677,11 +683,11 @@ class TalkWithAIDialog(wx.Dialog):
 			else:
 				await asyncio.sleep(0.1)
 
-	def _queueAudioData(self, data):
+	def _queueAudioData(self, data: bytes) -> None:
 		if data:
 			self.audioQueue.put(data)
 
-	def _handleServerContent(self, serverContent):
+	def _handleServerContent(self, serverContent: Any) -> bool:
 		queuedAudio = False
 		if getattr(serverContent, "interrupted", False):
 			log.debug("TalkWithAI: Server Interrupted")
@@ -709,7 +715,8 @@ class TalkWithAIDialog(wx.Dialog):
 				self._rememberConversationTurn("model", textPart)
 		return queuedAudio
 
-	async def receiveLoop(self, session):
+	async def receiveLoop(self, session: Any) -> None:
+		"""Receive text/audio events from the Live API and queue audio playback."""
 		try:
 			async for response in session.receive():
 				if not self.sessionActive:
@@ -741,7 +748,8 @@ class TalkWithAIDialog(wx.Dialog):
 		finally:
 			log.debug("TalkWithAI: Receive loop ended")
 
-	async def runSession(self):
+	async def runSession(self) -> None:
+		"""Open audio devices and keep the Live API session connected with retry backoff."""
 		try:
 			with getRuntimeScope():
 				self.audioInterface = pyaudio.PyAudio()
@@ -867,7 +875,8 @@ class TalkWithAIDialog(wx.Dialog):
 				self.audioInterface = None
 			self.session = None
 
-	def resetUi(self):
+	def resetUi(self) -> None:
+		"""Restore controls after a Live API session ends."""
 		if self:
 			try:
 				self.connectBtn.Enable()

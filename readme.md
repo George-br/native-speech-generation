@@ -15,8 +15,9 @@ This add-on is designed for smooth workflows, accessibility-first interaction, a
 
 * Choose between:
 
-  * **Gemini Flash** Standard quality, fast generation, low latency.
-  * **Gemini Pro** Premium, more realistic voices (paid model).
+  * **Gemini Flash 3.1 Preview** Powerful, low-latency speech generation, very good for short audio.
+  * **Gemini Flash 2.5** Standard quality, fast generation, low latency.
+  * **Gemini Pro 2.5** Premium, more realistic voices (paid model).
 
 ### Single & Multi-Speaker Modes
 
@@ -66,7 +67,7 @@ This add-on is designed for smooth workflows, accessibility-first interaction, a
 
 ## Requirements
 
-* NVDA (latest version recommended).
+* NVDA 2024.1 or newer, tested through NVDA 2026.1.
 * Active internet connection.
 * A valid **Google Gemini API Key**.
 
@@ -117,8 +118,9 @@ Open the dialog using:
   Provide guidance for tone, emotion, or delivery.
 * **Select Model**
 
-  * Flash (Standard Quality)
-  * Pro (High Quality)
+  * Flash 3.1 Preview
+  * Flash 2.5 (Standard Quality)
+  * Pro 2.5 (High Quality)
 * **Speaker Mode**
 
   * Single-speaker
@@ -246,6 +248,13 @@ python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Spee
 Adjust the path according to your local add-on source directory.
 
 For the current audio-only Talk With AI implementation, you do not need `opencv-python`, `pillow`, or `mss`.
+
+For release packages, the add-on downloads verified dependency archives based on the running NVDA version:
+
+* `lib.zip` for NVDA 2025.3.3 and older supported builds.
+* `lib64.zip` for NVDA 2026.1 and newer.
+
+Both release assets must include matching SHA-256 files (`lib.zip.sha256` and `lib64.zip.sha256`). The extracted folder is always installed as `addon/globalPlugins/NativeSpeechGeneration/lib`.
 
 Then copy the following from your Python installation into:
 

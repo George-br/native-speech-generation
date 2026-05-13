@@ -5,6 +5,16 @@ import os
 import contextlib
 from logHandler import log
 import wx
+import addonHandler
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+
+	def _(msg: str) -> str:
+		return msg
+
+
+addonHandler.initTranslation()
 
 
 def parseAudioMimeType(mimeType: str) -> dict[str, int]:
@@ -97,7 +107,9 @@ def safeStartFile(path: str) -> None:
 		log.error(f"Failed to open file: {e}", exc_info=True)
 		wx.CallAfter(
 			wx.MessageBox,
-			f"Audio generated, but failed to play automatically: {e}",
-			"Info",
+			# Translators: Message shown when generated audio was saved but could not be opened automatically.
+			_("Audio generated, but failed to play automatically: {error}").format(error=e),
+			# Translators: Title of an informational message dialog.
+			_("Info"),
 			wx.OK | wx.ICON_INFORMATION,
 		)

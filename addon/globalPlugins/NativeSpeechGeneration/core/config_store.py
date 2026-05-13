@@ -40,67 +40,67 @@ class _DATA_BLOB(ctypes.Structure):
 	]
 
 
-def register_config_spec() -> None:
+def registerConfigSpec() -> None:
 	config.conf.spec[CONFIG_DOMAIN] = _CONFIG_SPEC.copy()
-	_get_config_section()
+	_getConfigSection()
 
 
-def prepare_config_for_startup(*, persist: bool) -> bool:
-	register_config_spec()
-	removedLegacyPlaintext = _remove_legacy_plaintext_if_encrypted_exists()
-	migratedLegacyPlaintext = _migrate_plaintext_api_key()
+def prepareConfigForStartup(*, persist: bool) -> bool:
+	registerConfigSpec()
+	removedLegacyPlaintext = _removeLegacyPlaintextIfEncryptedExists()
+	migratedLegacyPlaintext = _migratePlaintextApiKey()
 	if persist and (removedLegacyPlaintext or migratedLegacyPlaintext):
 		config.save()
 	return removedLegacyPlaintext or migratedLegacyPlaintext
 
 
-def get_stored_api_key() -> str:
-	prepare_config_for_startup(persist=False)
-	encryptedValue = _get_text_setting("apiKeyEncrypted").strip()
+def getStoredApiKey() -> str:
+	prepareConfigForStartup(persist=False)
+	encryptedValue = _getTextSetting("apiKeyEncrypted").strip()
 	if not encryptedValue:
 		return ""
 	try:
-		return _decrypt_api_key(encryptedValue)
+		return _decryptApiKey(encryptedValue)
 	except ApiKeyStorageError as error:
 		log.warning(f"Stored encrypted Gemini API key could not be decrypted: {error}")
 		return ""
 
 
-def prepare_api_key_for_storage(value: str) -> tuple[str, str]:
+def prepareApiKeyForStorage(value: str) -> tuple[str, str]:
 	cleanValue = value.strip()
 	if not cleanValue:
 		return "", ""
-	return cleanValue, _encrypt_api_key(cleanValue)
+	return cleanValue, _encryptApiKey(cleanValue)
 
 
-def write_prepared_api_key(cleanValue: str, encryptedValue: str) -> None:
-	register_config_spec()
+def writePreparedApiKey(cleanValue: str, encryptedValue: str) -> None:
+	registerConfigSpec()
 	if not cleanValue:
-		_set_text_setting("apiKeyEncrypted", "")
-		_set_text_setting("apiKey", "")
+		_setTextSetting("apiKeyEncrypted", "")
+		_setTextSetting("apiKey", "")
 		return
-	_set_text_setting("apiKeyEncrypted", encryptedValue)
-	_set_text_setting("apiKey", "")
+	_setTextSetting("apiKeyEncrypted", encryptedValue)
+	_setTextSetting("apiKey", "")
 
 
-def set_stored_api_key(value: str) -> None:
-	cleanValue, encryptedValue = prepare_api_key_for_storage(value)
-	write_prepared_api_key(cleanValue, encryptedValue)
+def setStoredApiKey(value: str) -> None:
+	cleanValue, encryptedValue = prepareApiKeyForStorage(value)
+	writePreparedApiKey(cleanValue, encryptedValue)
 
 
-def resolve_api_key() -> ApiKeyResolution:
-	migratedLegacyPlaintext = prepare_config_for_startup(persist=False)
-	encryptedValue = _get_text_setting("apiKeyEncrypted").strip()
+def resolveApiKey() -> ApiKeyResolution:
+	migratedLegacyPlaintext = prepareConfigForStartup(persist=False)
+	encryptedValue = _getTextSetting("apiKeyEncrypted").strip()
 	if encryptedValue:
 		try:
 			return ApiKeyResolution(
-				value=_decrypt_api_key(encryptedValue),
+				value=_decryptApiKey(encryptedValue),
 				source="stored",
 				status="legacyMigrated" if migratedLegacyPlaintext else "stored",
 			)
 		except ApiKeyStorageError as error:
 			log.warning(f"Stored encrypted Gemini API key could not be decrypted: {error}")
-			environmentValue = _get_environment_api_key()
+			environmentValue = _getEnvironmentApiKey()
 			if environmentValue:
 				return ApiKeyResolution(
 					value=environmentValue,
@@ -109,68 +109,68 @@ def resolve_api_key() -> ApiKeyResolution:
 				)
 			return ApiKeyResolution(value="", source="missing", status="undecryptable")
 
-	environmentValue = _get_environment_api_key()
+	environmentValue = _getEnvironmentApiKey()
 	if environmentValue:
 		return ApiKeyResolution(value=environmentValue, source="environment", status="environment")
 	return ApiKeyResolution(value="", source="missing", status="missing")
 
 
-def _get_environment_api_key() -> str:
+def _getEnvironmentApiKey() -> str:
 	return os.environ.get(API_KEY_ENV_VAR, "").strip()
 
 
-def _get_config_section() -> Any:
+def _getConfigSection() -> Any:
 	return config.conf[CONFIG_DOMAIN]
 
 
-def _get_text_setting(name: str) -> str:
-	value = _get_config_section().get(name, "")
+def _getTextSetting(name: str) -> str:
+	value = _getConfigSection().get(name, "")
 	return value if isinstance(value, str) else str(value or "")
 
 
-def _set_text_setting(name: str, value: str) -> None:
-	_get_config_section()[name] = value
+def _setTextSetting(name: str, value: str) -> None:
+	_getConfigSection()[name] = value
 
 
-def _remove_legacy_plaintext_if_encrypted_exists() -> bool:
-	legacyValue = _get_text_setting("apiKey").strip()
-	encryptedValue = _get_text_setting("apiKeyEncrypted").strip()
+def _removeLegacyPlaintextIfEncryptedExists() -> bool:
+	legacyValue = _getTextSetting("apiKey").strip()
+	encryptedValue = _getTextSetting("apiKeyEncrypted").strip()
 	if not (legacyValue and encryptedValue):
 		return False
-	_set_text_setting("apiKey", "")
+	_setTextSetting("apiKey", "")
 	log.info("Removed legacy plaintext Gemini API key from configuration.")
 	return True
 
 
-def _migrate_plaintext_api_key() -> bool:
-	legacyValue = _get_text_setting("apiKey").strip()
-	encryptedValue = _get_text_setting("apiKeyEncrypted").strip()
+def _migratePlaintextApiKey() -> bool:
+	legacyValue = _getTextSetting("apiKey").strip()
+	encryptedValue = _getTextSetting("apiKeyEncrypted").strip()
 	if not legacyValue or encryptedValue:
 		return False
 	try:
-		_set_text_setting("apiKeyEncrypted", _encrypt_api_key(legacyValue))
+		_setTextSetting("apiKeyEncrypted", _encryptApiKey(legacyValue))
 	except ApiKeyStorageError:
 		log.error(
 			"Failed to migrate the legacy plaintext Gemini API key to encrypted storage.",
 			exc_info=True,
 		)
 		return False
-	_set_text_setting("apiKey", "")
+	_setTextSetting("apiKey", "")
 	log.info("Migrated legacy plaintext Gemini API key to DPAPI-protected storage.")
 	return True
 
 
-def _encrypt_api_key(value: str) -> str:
+def _encryptApiKey(value: str) -> str:
 	if not value:
 		return ""
 	try:
-		protectedValue = _protect_bytes_with_dpapi(value.encode("utf-8"))
+		protectedValue = _protectBytesWithDpapi(value.encode("utf-8"))
 	except Exception as error:
 		raise ApiKeyStorageError("Failed to encrypt the API key with Windows DPAPI.") from error
 	return base64.b64encode(protectedValue).decode("ascii")
 
 
-def _decrypt_api_key(value: str) -> str:
+def _decryptApiKey(value: str) -> str:
 	if not value:
 		return ""
 	try:
@@ -178,7 +178,7 @@ def _decrypt_api_key(value: str) -> str:
 	except Exception as error:
 		raise ApiKeyStorageError("Stored API key data is not valid base64.") from error
 	try:
-		plainValue = _unprotect_bytes_with_dpapi(protectedValue)
+		plainValue = _unprotectBytesWithDpapi(protectedValue)
 	except Exception as error:
 		raise ApiKeyStorageError(
 			"Stored API key data could not be decrypted for this Windows user or machine.",
@@ -189,11 +189,11 @@ def _decrypt_api_key(value: str) -> str:
 		raise ApiKeyStorageError("Stored API key data is not valid UTF-8 text.") from error
 
 
-def _protect_bytes_with_dpapi(value: bytes) -> bytes:
+def _protectBytesWithDpapi(value: bytes) -> bytes:
 	try:
 		import win32crypt
 	except ImportError:
-		return _protect_bytes_with_ctypes(value)
+		return _protectBytesWithCtypes(value)
 	return win32crypt.CryptProtectData(
 		value,
 		_DPAPI_DESCRIPTION,
@@ -204,11 +204,11 @@ def _protect_bytes_with_dpapi(value: bytes) -> bytes:
 	)
 
 
-def _unprotect_bytes_with_dpapi(value: bytes) -> bytes:
+def _unprotectBytesWithDpapi(value: bytes) -> bytes:
 	try:
 		import win32crypt
 	except ImportError:
-		return _unprotect_bytes_with_ctypes(value)
+		return _unprotectBytesWithCtypes(value)
 	_description, plainValue = win32crypt.CryptUnprotectData(
 		value,
 		None,
@@ -219,11 +219,10 @@ def _unprotect_bytes_with_dpapi(value: bytes) -> bytes:
 	return plainValue
 
 
-def _protect_bytes_with_ctypes(value: bytes) -> bytes:
-	dataIn, inputBuffer = _create_data_blob(value)
+def _protectBytesWithCtypes(value: bytes) -> bytes:
+	dataIn, inputBuffer = _createDataBlob(value)
 	dataOut = _DATA_BLOB()
-	crypt32, _kernel32 = _load_dpapi_libraries()
-	del inputBuffer
+	crypt32, _kernel32 = _loadDpapiLibraries()
 	if not crypt32.CryptProtectData(
 		ctypes.byref(dataIn),
 		_DPAPI_DESCRIPTION,
@@ -234,14 +233,15 @@ def _protect_bytes_with_ctypes(value: bytes) -> bytes:
 		ctypes.byref(dataOut),
 	):
 		raise ctypes.WinError(ctypes.get_last_error())
-	return _copy_and_free_data_blob(dataOut)
-
-
-def _unprotect_bytes_with_ctypes(value: bytes) -> bytes:
-	dataIn, inputBuffer = _create_data_blob(value)
-	dataOut = _DATA_BLOB()
-	crypt32, _kernel32 = _load_dpapi_libraries()
+	# Keep inputBuffer alive until CryptProtectData returns; dataIn points into it.
 	del inputBuffer
+	return _copyAndFreeDataBlob(dataOut)
+
+
+def _unprotectBytesWithCtypes(value: bytes) -> bytes:
+	dataIn, inputBuffer = _createDataBlob(value)
+	dataOut = _DATA_BLOB()
+	crypt32, _kernel32 = _loadDpapiLibraries()
 	if not crypt32.CryptUnprotectData(
 		ctypes.byref(dataIn),
 		None,
@@ -252,10 +252,12 @@ def _unprotect_bytes_with_ctypes(value: bytes) -> bytes:
 		ctypes.byref(dataOut),
 	):
 		raise ctypes.WinError(ctypes.get_last_error())
-	return _copy_and_free_data_blob(dataOut)
+	# Keep inputBuffer alive until CryptUnprotectData returns; dataIn points into it.
+	del inputBuffer
+	return _copyAndFreeDataBlob(dataOut)
 
 
-def _create_data_blob(value: bytes) -> tuple[_DATA_BLOB, ctypes.Array[ctypes.c_char] | None]:
+def _createDataBlob(value: bytes) -> tuple[_DATA_BLOB, ctypes.Array[ctypes.c_char] | None]:
 	if not value:
 		return _DATA_BLOB(0, ctypes.POINTER(ctypes.c_ubyte)()), None
 	buffer = ctypes.create_string_buffer(value, len(value))
@@ -265,8 +267,8 @@ def _create_data_blob(value: bytes) -> tuple[_DATA_BLOB, ctypes.Array[ctypes.c_c
 	), buffer
 
 
-def _copy_and_free_data_blob(blob: _DATA_BLOB) -> bytes:
-	_crypt32, kernel32 = _load_dpapi_libraries()
+def _copyAndFreeDataBlob(blob: _DATA_BLOB) -> bytes:
+	_crypt32, kernel32 = _loadDpapiLibraries()
 	try:
 		if not blob.cbData or not blob.pbData:
 			return b""
@@ -276,7 +278,7 @@ def _copy_and_free_data_blob(blob: _DATA_BLOB) -> bytes:
 			kernel32.LocalFree(ctypes.cast(blob.pbData, ctypes.c_void_p))
 
 
-def _load_dpapi_libraries() -> tuple[ctypes.WinDLL, ctypes.WinDLL]:
+def _loadDpapiLibraries() -> tuple[ctypes.WinDLL, ctypes.WinDLL]:
 	crypt32 = ctypes.WinDLL("crypt32", use_last_error=True)
 	kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
 	crypt32.CryptProtectData.argtypes = (

@@ -2,8 +2,9 @@
 import os
 
 CONFIG_DOMAIN = "NativeSpeechGeneration"
-DEFAULT_MODEL = "gemini-2.5-flash-preview-tts"
-SECOND_MODEL = "gemini-2.5-pro-preview-tts"
+DEFAULT_MODEL = "gemini-3.1-flash-tts-preview"
+FLASH_25_MODEL = "gemini-2.5-flash-preview-tts"
+PRO_25_MODEL = "gemini-2.5-pro-preview-tts"
 
 # Compute directories relative to this file
 _coreDir = os.path.dirname(os.path.abspath(__file__))

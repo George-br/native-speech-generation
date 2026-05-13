@@ -3,19 +3,22 @@ import wx
 import threading
 import os
 import mimetypes
-import requests
+import urllib.request
 import webbrowser
 import tempfile
+import uuid
 import winsound
 import gui
 import ui
 import addonHandler
 from logHandler import log
+from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
 from ..core.constants import (
 	DEFAULT_MODEL,
-	SECOND_MODEL,
+	FLASH_25_MODEL,
+	PRO_25_MODEL,
 	VOICE_SAMPLE_BASE,
 	FALLBACK_VOICES,
 )
@@ -33,10 +36,21 @@ if TYPE_CHECKING:
 
 addonHandler.initTranslation()
 
-_guiDir = os.path.dirname(os.path.abspath(__file__))
-_pkgDir = os.path.dirname(_guiDir)
-_globalPluginsDir = os.path.dirname(_pkgDir)
-ADDON_DIR_VAL = os.path.dirname(_globalPluginsDir)
+GENERATED_AUDIO_DIR = os.path.join(tempfile.gettempdir(), "NativeSpeechGeneration")
+
+
+@dataclass(frozen=True)
+class GenerationRequest:
+	apiKey: str
+	text: str
+	model: str
+	temperature: float
+	styleInstructions: str
+	modeMulti: bool
+	voiceName: str
+	voiceName2: str
+	speaker1Name: str
+	speaker2Name: str
 
 
 class NativeSpeechDialog(wx.Dialog):
@@ -45,7 +59,8 @@ class NativeSpeechDialog(wx.Dialog):
 		super().__init__(parent, title=_("Native Speech Generation (Gemini TTS)"))
 
 		self.lastAudioPath: str | None = None
-		self.model = DEFAULT_MODEL
+		self.modelOptions = self._getModelOptions()
+		self.model = self.modelOptions[0][0]
 		self.modeMulti = False
 		self.voices: list[dict[str, Any]] = []
 		self.selectedVoiceIdx = 0
@@ -58,6 +73,31 @@ class NativeSpeechDialog(wx.Dialog):
 		self._buildUi()
 		threading.Thread(target=self.loadVoices, daemon=True).start()
 		self.textCtrl.SetFocus()
+
+	def _getModelOptions(self) -> list[tuple[str, str, str]]:
+		return [
+			(
+				DEFAULT_MODEL,
+				# Translators: Model option for the newest Gemini Flash text-to-speech preview.
+				_("Flash 3.1 Preview"),
+				# Translators: Description for the Gemini Flash 3.1 Preview model.
+				_("Powerful, low-latency speech generation, very good for short audio."),
+			),
+			(
+				FLASH_25_MODEL,
+				# Translators: Model option for the older Gemini Flash text-to-speech preview.
+				_("Flash 2.5 (Standard Quality)"),
+				# Translators: Description for the Gemini Flash 2.5 model.
+				_("Standard quality, responsive speech generation."),
+			),
+			(
+				PRO_25_MODEL,
+				# Translators: Model option for the Gemini Pro text-to-speech preview.
+				_("Pro 2.5 (High Quality)"),
+				# Translators: Description for the Gemini Pro 2.5 model.
+				_("Premium speech generation with more realistic voices."),
+			),
+		]
 
 	def _buildUi(self) -> None:
 		mainSizer = wx.BoxSizer(wx.VERTICAL)
@@ -74,10 +114,13 @@ class NativeSpeechDialog(wx.Dialog):
 		mainSizer.Add(styleLabel, flag=wx.ALL, border=6)
 		mainSizer.Add(self.styleCtrl, flag=wx.EXPAND | wx.LEFT | wx.RIGHT, border=6)
 
+		modelOuterSizer = wx.BoxSizer(wx.VERTICAL)
 		modelSizer = wx.BoxSizer(wx.HORIZONTAL)
 		# Translators: Label for selecting the AI model to use for generation.
 		modelLabel = wx.StaticText(self, label=_("Select &Model:"))
-		self.modelChoice = wx.Choice(self, choices=[_("Flash (Standard Quality)"), _("Pro (High Quality)")])
+		self.modelChoice = wx.Choice(
+			self, choices=[label for _model, label, _description in self.modelOptions]
+		)
 		self.modelChoice.SetSelection(0)
 		self.modelChoice.Bind(wx.EVT_CHOICE, self.onModelChange)
 		modelSizer.Add(modelLabel, flag=wx.ALIGN_CENTER_VERTICAL | wx.ALL, border=6)
@@ -92,7 +135,11 @@ class NativeSpeechDialog(wx.Dialog):
 		self.modeMultiRb.Bind(wx.EVT_RADIOBUTTON, self.onModeChange)
 		modelSizer.Add(self.modeSingleRb, flag=wx.ALL, border=6)
 		modelSizer.Add(self.modeMultiRb, flag=wx.ALL, border=6)
-		mainSizer.Add(modelSizer, flag=wx.EXPAND)
+		modelOuterSizer.Add(modelSizer, flag=wx.EXPAND)
+		self.modelDescriptionLabel = wx.StaticText(self, label=self.modelOptions[0][2])
+		self.modelDescriptionLabel.Wrap(520)
+		modelOuterSizer.Add(self.modelDescriptionLabel, flag=wx.LEFT | wx.RIGHT | wx.BOTTOM, border=6)
+		mainSizer.Add(modelOuterSizer, flag=wx.EXPAND)
 
 		# Translators: Checkbox to show advanced settings like Temperature.
 		self.settingsCheckbox = wx.CheckBox(self, label=_("Advanced Settings (&Temperature)"))
@@ -274,7 +321,13 @@ class NativeSpeechDialog(wx.Dialog):
 
 	def onModelChange(self, evt: wx.Event) -> None:
 		sel = self.modelChoice.GetSelection()
-		self.model = DEFAULT_MODEL if sel == 0 else SECOND_MODEL
+		if sel == wx.NOT_FOUND:
+			sel = 0
+		self.model = self.modelOptions[sel][0]
+		self.modelDescriptionLabel.SetLabel(self.modelOptions[sel][2])
+		self.modelDescriptionLabel.Wrap(520)
+		self.GetSizer().Layout()
+		self.Fit()
 
 	def onModeChange(self, evt: wx.Event) -> None:
 		self.modeMulti = self.modeMultiRb.GetValue()
@@ -315,7 +368,7 @@ class NativeSpeechDialog(wx.Dialog):
 			return "Zephyr"
 
 	def _resolveApiKeyForUse(self) -> str | None:
-		resolution = config_store.resolve_api_key()
+		resolution = config_store.resolveApiKey()
 		if resolution.value:
 			return resolution.value
 		self._showApiKeyUnavailableMessage(resolution)
@@ -390,6 +443,23 @@ class NativeSpeechDialog(wx.Dialog):
 				wx.OK | wx.ICON_ERROR,
 			)
 
+	def _buildGenerationRequest(self, text: str, apiKey: str) -> GenerationRequest:
+		primaryVoiceCtrl = self.voiceChoiceMulti1 if self.modeMulti else self.voiceChoiceSingle
+		primaryVoiceIdx = primaryVoiceCtrl.GetSelection()
+		secondaryVoiceIdx = self.voiceChoiceMulti2.GetSelection()
+		return GenerationRequest(
+			apiKey=apiKey,
+			text=text,
+			model=self.model,
+			temperature=self.tempSlider.GetValue() / 10.0,
+			styleInstructions=self.styleCtrl.GetValue().strip(),
+			modeMulti=self.modeMulti,
+			voiceName=self._getSelectedVoiceName(primaryVoiceCtrl, primaryVoiceIdx),
+			voiceName2=self._getSelectedVoiceName(self.voiceChoiceMulti2, secondaryVoiceIdx),
+			speaker1Name=self.spk1NameCtrl.GetValue().strip() or _("Speaker1"),
+			speaker2Name=self.spk2NameCtrl.GetValue().strip() or _("Speaker2"),
+		)
+
 	def onGenerate(self, evt: wx.Event) -> None:
 		if self.isGenerating:
 			return
@@ -422,18 +492,19 @@ class NativeSpeechDialog(wx.Dialog):
 			)
 			return
 
+		generationRequest = self._buildGenerationRequest(text, apiKey)
 		self.isGenerating = True
 		self.generateBtn.SetLabel(_("Generating..."))
 		self.playBtn.Enable(False)
 		self.saveBtn.Enable(False)
 		self.talkBtn.Enable(False)
-		threading.Thread(target=self._generateThread, args=(text, apiKey), daemon=True).start()
+		threading.Thread(target=self._generateThread, args=(generationRequest,), daemon=True).start()
 
-	def _generateThread(self, text: str, apiKey: str) -> None:
+	def _generateThread(self, generationRequest: GenerationRequest) -> None:
 		ui.message(_("Generating speech, please wait..."))
 		try:
 			with getRuntimeScope():
-				self.client = genai.Client(api_key=apiKey)
+				self.client = genai.Client(api_key=generationRequest.apiKey)
 		except Exception as e:
 			log.error(f"Failed init genai client: {e}", exc_info=True)
 			if not self.isClosed:
@@ -460,40 +531,39 @@ class NativeSpeechDialog(wx.Dialog):
 
 		try:
 			with getRuntimeScope():
-				temp = self.tempSlider.GetValue() / 10.0
-				styleInstructions = self.styleCtrl.GetValue().strip()
-				if styleInstructions:
-					finalText = f"{styleInstructions}\n{text}"
+				if generationRequest.styleInstructions:
+					finalText = f"{generationRequest.styleInstructions}\n{generationRequest.text}"
 				else:
-					finalText = f"Please read the following text aloud:\n{text}"
+					finalText = f"Please read the following text aloud:\n{generationRequest.text}"
 
 				contents = [types.Content(role="user", parts=[types.Part.from_text(text=finalText)])]
 
-				if not self.modeMulti:
-					voiceName = self._getSelectedVoiceName(self.voiceChoiceSingle, self.selectedVoiceIdx)
+				if not generationRequest.modeMulti:
 					speechConfig = types.SpeechConfig(
 						voice_config=types.VoiceConfig(
-							prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voiceName),
+							prebuilt_voice_config=types.PrebuiltVoiceConfig(
+								voice_name=generationRequest.voiceName
+							),
 						),
 					)
 				else:
-					speaker1Name = self.spk1NameCtrl.GetValue().strip() or _("Speaker1")
-					speaker2Name = self.spk2NameCtrl.GetValue().strip() or _("Speaker2")
-					voice1 = self._getSelectedVoiceName(self.voiceChoiceMulti1, self.selectedVoiceIdx)
-					voice2 = self._getSelectedVoiceName(self.voiceChoiceMulti2, self.selectedVoiceIdx2)
 					speechConfig = types.SpeechConfig(
 						multi_speaker_voice_config=types.MultiSpeakerVoiceConfig(
 							speaker_voice_configs=[
 								types.SpeakerVoiceConfig(
-									speaker=speaker1Name,
+									speaker=generationRequest.speaker1Name,
 									voice_config=types.VoiceConfig(
-										prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice1),
+										prebuilt_voice_config=types.PrebuiltVoiceConfig(
+											voice_name=generationRequest.voiceName,
+										),
 									),
 								),
 								types.SpeakerVoiceConfig(
-									speaker=speaker2Name,
+									speaker=generationRequest.speaker2Name,
 									voice_config=types.VoiceConfig(
-										prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice2),
+										prebuilt_voice_config=types.PrebuiltVoiceConfig(
+											voice_name=generationRequest.voiceName2,
+										),
 									),
 								),
 							],
@@ -501,18 +571,18 @@ class NativeSpeechDialog(wx.Dialog):
 					)
 
 				generateConfig = types.GenerateContentConfig(
-					temperature=temp,
+					temperature=generationRequest.temperature,
 					response_modalities=["audio"],
 					speech_config=speechConfig,
 				)
-			outPathBase = os.path.join(ADDON_DIR_VAL, "last_audio_generated")
+			outPathBase = self._buildOutputPathBase()
 
 			if self.isClosed:
 				return
 
 			savedPath = self._streamAndSaveAudio(
 				self.client,
-				self.model,
+				generationRequest.model,
 				contents,
 				generateConfig,
 				outPathBase,
@@ -542,6 +612,22 @@ class NativeSpeechDialog(wx.Dialog):
 		self.generateBtn.SetLabel(_("&Generate Speech"))
 		self.talkBtn.Enable(True)
 		self.isGenerating = False
+
+	def _buildOutputPathBase(self) -> str:
+		os.makedirs(GENERATED_AUDIO_DIR, exist_ok=True)
+		return os.path.join(GENERATED_AUDIO_DIR, f"last_audio_generated_{uuid.uuid4().hex}")
+
+	def _iterResponseParts(self, chunk: Any) -> list[Any]:
+		parts = getattr(chunk, "parts", None)
+		if parts:
+			return list(parts)
+		collectedParts = []
+		for candidate in getattr(chunk, "candidates", []) or []:
+			content = getattr(candidate, "content", None)
+			candidateParts = getattr(content, "parts", None) if content else None
+			if candidateParts:
+				collectedParts.extend(candidateParts)
+		return collectedParts
 
 	def _streamAndSaveAudio(
 		self,
@@ -576,14 +662,11 @@ class NativeSpeechDialog(wx.Dialog):
 							)
 						return None
 
-					if not getattr(chunk, "candidates", None):
-						continue
-					candidate = chunk.candidates[0]
-					if not candidate.content or not candidate.content.parts:
-						continue
-					part = candidate.content.parts[0]
-
-					if part.inline_data and getattr(part.inline_data, "data", None):
+					for part in self._iterResponseParts(chunk):
+						if not getattr(part, "inline_data", None) or not getattr(
+							part.inline_data, "data", None
+						):
+							continue
 						inline = part.inline_data
 						ext = mimetypes.guess_extension(inline.mime_type or "") or ""
 
@@ -674,12 +757,15 @@ class NativeSpeechDialog(wx.Dialog):
 
 	def _downloadAndPlaySample(self, url: str) -> None:
 		try:
-			resp = requests.get(url, timeout=10)
-			if resp.status_code != 200 or not resp.content:
+			request = urllib.request.Request(url, headers={"User-Agent": "NativeSpeechGeneration-NVDA-Addon"})
+			with urllib.request.urlopen(request, timeout=10) as response:
+				statusCode = getattr(response, "status", response.getcode())
+				content = response.read()
+			if statusCode != 200 or not content:
 				ui.message(_("Sample not available"))
 				return
 			with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
-				tmp.write(resp.content)
+				tmp.write(content)
 				tempPath = tmp.name
 			ui.message(_("Playing voice sample"))
 			winsound.PlaySound(tempPath, winsound.SND_FILENAME | winsound.SND_ASYNC)

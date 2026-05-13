@@ -1,5 +1,16 @@
 # Changelog
 
+## version 1.7.0
+
+- Compatibility: Added support for NVDA 2026.1.
+- Dependencies: Added verified, NVDA-version-aware library downloads that select `lib.zip` for older NVDA versions and `lib64.zip` for NVDA 2026.1 and newer.
+- Dependencies: Added SHA-256 verification and safe archive extraction before replacing the add-on library folder.
+- Speech Generation: Added `gemini-3.1-flash-tts-preview` as the default model.
+- Speech Generation: Captured dialog values before background generation to avoid reading wx controls from worker threads.
+- Speech Generation: Saved generated audio outside the add-on folder so runtime output is not bundled accidentally.
+- Security: Fixed the Windows DPAPI ctypes fallback to keep input buffers alive during encryption and decryption.
+- Maintenance: Removed the direct `requests` dependency, tightened package exclusions, and refreshed NVDA-style naming/type hints.
+
 ## version 1.6.0
 
 - Security: Gemini API keys are now stored with Windows DPAPI instead of plaintext config.
