@@ -51,6 +51,8 @@ HISTORY_MAX_CHARS = 1800
 
 
 class TalkWithAIRuntimeError(RuntimeError):
+	"""Raised when the Live API runtime does not support the required feature set."""
+
 	pass
 
 
@@ -164,15 +166,18 @@ class TalkWithAIDialog(wx.Dialog):
 		panel = wx.Panel(self)
 		panelSizer = wx.BoxSizer(wx.VERTICAL)
 
+		# Translators: Group label for connection status in the Talk With AI dialog.
 		statusBox = wx.StaticBox(panel, label=_("Status"))
 		statusSizer = wx.StaticBoxSizer(statusBox, wx.VERTICAL)
 		self.statusLabel = wx.StaticText(
 			panel,
+			# Translators: Status label. {status} is replaced with the current Talk With AI status.
 			label=_("Status: {status}").format(status=_("Ready to Connect")),
 		)
 		statusSizer.Add(self.statusLabel, 0, wx.ALL | wx.EXPAND, 5)
 		panelSizer.Add(statusSizer, 0, wx.ALL | wx.EXPAND, 5)
 
+		# Translators: Group label for Talk With AI controls.
 		controlsBox = wx.StaticBox(panel, label=_("Controls"))
 		controlsSizer = wx.StaticBoxSizer(controlsBox, wx.VERTICAL)
 
@@ -198,6 +203,7 @@ class TalkWithAIDialog(wx.Dialog):
 		self.deviceSizer = wx.BoxSizer(wx.VERTICAL)
 
 		inputSizer = wx.BoxSizer(wx.HORIZONTAL)
+		# Translators: Label for selecting the microphone input device.
 		inputLabel = wx.StaticText(panel, label=_("Microphone:"))
 		inputChoices = [device["name"] for device in self.inputDevices]
 		self.inputChoice = wx.Choice(panel, choices=inputChoices)
@@ -208,6 +214,7 @@ class TalkWithAIDialog(wx.Dialog):
 		self.deviceSizer.Add(inputSizer, 0, wx.ALL | wx.EXPAND, 5)
 
 		outputSizer = wx.BoxSizer(wx.HORIZONTAL)
+		# Translators: Label for selecting the speaker output device.
 		outputLabel = wx.StaticText(panel, label=_("Speaker:"))
 		outputChoices = [device["name"] for device in self.outputDevices]
 		self.outputChoice = wx.Choice(panel, choices=outputChoices)
@@ -234,6 +241,7 @@ class TalkWithAIDialog(wx.Dialog):
 		controlsSizer.Add(thinkingSizer, 0, wx.ALL | wx.EXPAND, 5)
 
 		volSizer = wx.BoxSizer(wx.HORIZONTAL)
+		# Translators: Label for the Talk With AI playback volume slider.
 		volLabel = wx.StaticText(panel, label=_("Volume:"))
 		self.volSlider = wx.Slider(panel, value=self.volume, minValue=0, maxValue=100, style=wx.SL_HORIZONTAL)
 		self.volSlider.Bind(wx.EVT_SLIDER, self.onVolumeChange)
@@ -245,6 +253,7 @@ class TalkWithAIDialog(wx.Dialog):
 
 		infoLabel = wx.StaticText(
 			panel,
+			# Translators: Informational label. {voiceName} is replaced with the selected Gemini voice.
 			label=_("Voice: {voiceName}").format(voiceName=str(self.voiceName)),
 		)
 		panelSizer.Add(infoLabel, 0, wx.ALL | wx.ALIGN_CENTER_HORIZONTAL, 10)
@@ -269,6 +278,7 @@ class TalkWithAIDialog(wx.Dialog):
 	def updateStatus(self, text: str, announce: bool = False, forceAnnouncement: bool = False) -> None:
 		try:
 			if self:
+				# Translators: Status label. {status} is replaced with the current Talk With AI status.
 				self.statusLabel.SetLabel(_("Status: {status}").format(status=text))
 		except RuntimeError:
 			return
@@ -278,13 +288,16 @@ class TalkWithAIDialog(wx.Dialog):
 	def reportError(self, msg: object) -> None:
 		try:
 			if self:
+				# Translators: Title of an error dialog in Talk With AI.
 				wx.MessageBox(str(msg), _("Error"), wx.OK | wx.ICON_ERROR)
+				# Translators: Status shown when Talk With AI enters an error state.
 				self.updateStatus(_("Error"))
 		except RuntimeError:
 			return
 
 	def onMicToggle(self, evt: wx.Event) -> None:
 		self.micOn = self.micBtn.GetValue()
+		# Translators: Toggle button label indicating microphone state.
 		label = _("Microphone: ON") if self.micOn else _("Microphone: OFF")
 		self.micBtn.SetLabel(label)
 
@@ -304,6 +317,7 @@ class TalkWithAIDialog(wx.Dialog):
 	def _buildMissingDependencyMessage(self, baseMessage: str, errorDetail: str | None) -> str:
 		if not errorDetail:
 			return baseMessage
+		# Translators: Dependency error detail. {baseMessage} is the main error and {errorDetail} is the import exception.
 		return _("{baseMessage}\n\nImport detail: {errorDetail}").format(
 			baseMessage=baseMessage,
 			errorDetail=errorDetail,
@@ -391,12 +405,14 @@ class TalkWithAIDialog(wx.Dialog):
 			version = VENDOR_VERSIONS.get("google.genai", "")
 			if version:
 				return _(
+					# Translators: Dependency compatibility error for Talk With AI.
 					"Installed google-genai library ({version}) does not support the Gemini 3.1 Live API features required by Talk With AI. Missing: {missing}. Please update the add-on libraries.",
 				).format(
 					version=version,
 					missing=", ".join(missing),
 				)
 			return _(
+				# Translators: Dependency compatibility error for Talk With AI when no library version is known.
 				"Installed google-genai library does not support the Gemini 3.1 Live API features required by Talk With AI. Missing: {missing}. Please update the add-on libraries.",
 			).format(
 				missing=", ".join(missing),
@@ -438,6 +454,7 @@ class TalkWithAIDialog(wx.Dialog):
 						nestedWindow.Hide()
 
 		self.Layout()
+		# Translators: Status shown while Talk With AI is connecting.
 		self.updateStatus(_("Connecting..."), announce=True)
 
 		self.sessionActive = True
@@ -446,6 +463,7 @@ class TalkWithAIDialog(wx.Dialog):
 
 	def onDisconnect(self, evt: wx.Event) -> None:
 		self.disconnectBtn.Disable()
+		# Translators: Status shown while Talk With AI is disconnecting.
 		self.updateStatus(_("Disconnecting..."), announce=True)
 		if self.loop and self.loop.is_running():
 			asyncio.run_coroutine_threadsafe(self.cleanupAsync(), self.loop)
@@ -604,6 +622,7 @@ class TalkWithAIDialog(wx.Dialog):
 
 	def _buildLiveConfig(self, includeHistorySeed: bool) -> Any:
 		if not types:
+			# Translators: Error shown when google-genai type helpers are missing.
 			raise TalkWithAIRuntimeError(_("Google GenAI types are not available."))
 		try:
 			with getRuntimeScope():
@@ -627,6 +646,7 @@ class TalkWithAIDialog(wx.Dialog):
 				)
 		except Exception as error:
 			raise TalkWithAIRuntimeError(
+				# Translators: Error shown when Live API configuration cannot be built.
 				_("Failed to prepare the Gemini Live configuration. Please update the add-on libraries."),
 			) from error
 
@@ -637,6 +657,7 @@ class TalkWithAIDialog(wx.Dialog):
 				if version:
 					raise TalkWithAIRuntimeError(
 						_(
+							# Translators: Dependency compatibility error for Talk With AI.
 							"The installed google-genai library ({version}) is too old for Gemini 3.1 Live sessions. Missing session method: {methodName}. Please update the add-on libraries.",
 						).format(
 							version=version,
@@ -645,6 +666,7 @@ class TalkWithAIDialog(wx.Dialog):
 					)
 				raise TalkWithAIRuntimeError(
 					_(
+						# Translators: Dependency compatibility error for Talk With AI when no library version is known.
 						"The installed google-genai library is too old for Gemini 3.1 Live sessions. Missing session method: {methodName}. Please update the add-on libraries.",
 					).format(
 						methodName=methodName,
@@ -796,6 +818,7 @@ class TalkWithAIDialog(wx.Dialog):
 
 							retryAttempt = 0
 							if firstConnect:
+								# Translators: Status shown when Talk With AI connects successfully.
 								wx.CallAfter(self.updateStatus, _("Connected"), True)
 								self._playSoundEffect(STREAM_START_SOUND_PATH)
 								firstConnect = False
@@ -843,6 +866,7 @@ class TalkWithAIDialog(wx.Dialog):
 					if now - self.lastStatusAt > 1.0:
 						wx.CallAfter(
 							self.updateStatus,
+							# Translators: Status shown while Talk With AI waits before reconnecting.
 							_("Connection lost. Retrying in {seconds:.1f}s").format(seconds=delay),
 							True,
 						)
@@ -897,6 +921,7 @@ class TalkWithAIDialog(wx.Dialog):
 								nestedWindow.Show()
 
 				self.Layout()
+				# Translators: Status shown when Talk With AI is ready for a new session.
 				self.updateStatus(_("Ready"), announce=True)
 			except RuntimeError:
 				pass

@@ -6,7 +6,7 @@ import contextlib
 from logHandler import log
 import wx
 import addonHandler
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
 
@@ -76,11 +76,12 @@ def mergeWavFiles(inputPaths: list[str], outputPath: str) -> None:
 
 	with wave.open(inputPaths[0], "rb") as w0:
 		params = w0.getparams()
+		formatParams = _getWavFormatParams(params)
 		frames = [w0.readframes(w0.getnframes())]
 
 	for p in inputPaths[1:]:
 		with wave.open(p, "rb") as wi:
-			if wi.getparams() != params:
+			if _getWavFormatParams(wi.getparams()) != formatParams:
 				raise ValueError("WAV files have different parameters; cannot merge safely.")
 			frames.append(wi.readframes(wi.getnframes()))
 
@@ -89,6 +90,11 @@ def mergeWavFiles(inputPaths: list[str], outputPath: str) -> None:
 		for fr in frames:
 			wo.writeframes(fr)
 	log.info(f"Merged {len(inputPaths)} WAV files -> {outputPath}")
+
+
+def _getWavFormatParams(params: Any) -> tuple[int, int, int, str, str]:
+	"""Return WAV parameters that must match for safe concatenation."""
+	return params.nchannels, params.sampwidth, params.framerate, params.comptype, params.compname
 
 
 def saveBinaryFile(fileName: str, data: bytes) -> None:

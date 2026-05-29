@@ -19,6 +19,8 @@ addonHandler.initTranslation()
 
 
 class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
+	"""Settings panel for API key storage and dependency maintenance."""
+
 	# Translators: Title of the settings panel in NVDA preferences.
 	title = _("Native Speech Generation")
 
@@ -120,6 +122,7 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			targetCtrl.SetFocus()
 
 	def onGetKey(self, evt: wx.Event) -> None:
+		"""Open Google AI Studio in the user's default browser."""
 		webbrowser.open("https://aistudio.google.com/apikey")
 
 	def _getCurrentApiKeyFieldValue(self) -> str:

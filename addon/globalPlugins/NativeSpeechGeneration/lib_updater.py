@@ -26,11 +26,10 @@ LIBRARY_RELEASE_API_URL = "https://api.github.com/repos/muhammadGagah/python-lib
 LIBRARY_RELEASE_DOWNLOAD_BASE = (
 	"https://github.com/muhammadGagah/python-library-add-on-Native-Speech-Generation/releases/download"
 )
-APPROVED_LIBRARY_VERSION = "1.70.0"
+APPROVED_LIBRARY_VERSION = "2.2.0"
 APPROVED_LIBRARY_SHA256 = {
-	"lib.zip": "8F09EEFBD099067CAF7A977A9D93B109B641ED3CAB9DC8F58B751EA13DAE9555",
-	# Fill this after publishing a release that contains lib64.zip.
-	"lib64.zip": "",
+	"lib.zip": "96140636befa9880fbe48efc309f71f6057e80f48a7e58299d9657287df76d90",
+	"lib64.zip": "f8082c18d503454728b8d7ab97dbc407cd74c8ee086f6e2a6fde27dff9945b37",
 }
 NVDA_2026_RUNTIME_VERSION = (2026, 1, 0)
 USER_AGENT = "NativeSpeechGeneration-NVDA-Addon"
@@ -93,6 +92,7 @@ def getCurrentNvdaVersionText() -> str:
 
 
 def getRuntimeAssetName(versionText: str | None = None) -> str:
+	"""Return the dependency archive name for the running NVDA runtime."""
 	if versionText is None:
 		versionText = getCurrentNvdaVersionText()
 	nvdaVersion = parseNvdaVersion(versionText)
@@ -107,12 +107,13 @@ def getRuntimeAssetName(versionText: str | None = None) -> str:
 
 
 def getApprovedLibraryAsset(assetName: str | None = None) -> LibraryAsset:
+	"""Return the pinned dependency archive approved for stable add-on releases."""
 	if assetName is None:
 		assetName = getRuntimeAssetName()
 	sha256 = APPROVED_LIBRARY_SHA256.get(assetName, "").strip()
 	if not sha256:
 		raise LibraryUpdateError(
-			# Translators: Error shown when this add-on does not include trusted checksum metadata for a library.
+			# Translators: Error shown when this add-on has no trusted checksum for a dependency archive.
 			_("No approved checksum is bundled for {assetName}.").format(assetName=assetName),
 		)
 	return LibraryAsset(
@@ -125,6 +126,7 @@ def getApprovedLibraryAsset(assetName: str | None = None) -> LibraryAsset:
 
 
 def getLatestVerifiedLibraryAsset(assetName: str | None = None) -> LibraryAsset:
+	"""Return a checksum-verified asset from the latest GitHub release."""
 	if assetName is None:
 		assetName = getRuntimeAssetName()
 	release = _readJsonUrl(LIBRARY_RELEASE_API_URL)
@@ -135,14 +137,17 @@ def getLatestVerifiedLibraryAsset(assetName: str | None = None) -> LibraryAsset:
 			_("The latest library release does not include a version tag."),
 		)
 	asset = _findReleaseAsset(release, assetName)
-	checksum = _findReleaseChecksum(release, assetName)
+	checksum = _findReleaseChecksum(release, assetName, asset)
 	return LibraryAsset(
 		version=version,
 		name=assetName,
 		url=str(asset["browser_download_url"]),
 		sha256=checksum,
-		source="latest",
+		source="github",
 	)
+
+
+getVerifiedLibraryAsset = getLatestVerifiedLibraryAsset
 
 
 def downloadAndExtract(
@@ -151,8 +156,10 @@ def downloadAndExtract(
 	*,
 	forceLatest: bool = False,
 ) -> bool:
-	"""Download, verify, and install the dependency library for this NVDA runtime."""
+	"""Download, verify, and install dependency libraries for this NVDA runtime."""
 	try:
+		if forceLatest:
+			log.info("lib_updater: User requested dependency reinstall from the latest verified release.")
 		asset = _resolveLibraryAsset(forceLatest=forceLatest)
 		_installLibraryAsset(asset, progressCallback)
 		return True
@@ -204,12 +211,15 @@ def checkAndInstallDependencies(forceReinstall: bool = False) -> None:
 						# Translators: Message shown after dependencies are installed and NVDA must restart.
 						"The Native Speech Generation libraries have been successfully installed/updated.\n\nPlease restart NVDA for the changes to take effect.",
 					)
+					# Translators: Title of the dialog shown after dependency installation completes.
 					title = _("Installation Complete")
 					res = wx.MessageBox(message, title, wx.OK | wx.ICON_INFORMATION)
 					if res == wx.OK:
 						core.restart()
 				else:
+					# Translators: Error shown when dependency installation fails.
 					message = _("Library installation failed. Please check the log.")
+					# Translators: Title of a dependency installation error dialog.
 					title = _("Error")
 					wx.CallAfter(wx.MessageBox, message, title, wx.OK | wx.ICON_ERROR)
 
@@ -220,15 +230,17 @@ def checkAndInstallDependencies(forceReinstall: bool = False) -> None:
 	def confirmAction() -> None:
 		if forceReinstall:
 			msg = _(
-				# Translators: Confirmation before reinstalling or updating external Python dependencies.
+				# Translators: Confirmation before reinstalling or updating external Python dependencies from GitHub.
 				"This will download the latest verified libraries for your NVDA version and require an NVDA restart. Continue?",
 			)
+			# Translators: Title of the dialog confirming a dependency library reinstall.
 			title = _("Confirm Library Update")
 		else:
 			msg = _(
 				# Translators: Confirmation shown when required libraries are missing.
-				"Required libraries for Native Speech Generation are missing. Click OK to download the verified package for your NVDA version.",
+				"Required libraries for Native Speech Generation are missing. Click OK to download the latest verified package for your NVDA version.",
 			)
+			# Translators: Title of the dialog shown when dependency libraries are missing.
 			title = _("Missing Dependencies")
 
 		res = wx.MessageBox(msg, title, wx.OK | wx.CANCEL | wx.ICON_INFORMATION)
@@ -241,58 +253,22 @@ def checkAndInstallDependencies(forceReinstall: bool = False) -> None:
 
 
 def reinstallDependencies() -> None:
-	"""Public wrapper to install the latest verified dependency package."""
+	"""Public wrapper to reinstall the latest verified dependency package."""
 	checkAndInstallDependencies(forceReinstall=True)
 
 
-def _resolveLibraryAsset(*, forceLatest: bool) -> LibraryAsset:
+def _resolveLibraryAsset(*, forceLatest: bool = False) -> LibraryAsset:
 	assetName = getRuntimeAssetName()
-	if forceLatest:
-		try:
-			return getLatestVerifiedLibraryAsset(assetName)
-		except Exception as latestError:
-			log.warning(f"lib_updater: Latest verified library lookup failed: {latestError}", exc_info=True)
-			if _askInstallApprovedFallback(assetName, latestError):
-				return getApprovedLibraryAsset(assetName)
-			raise
-
 	try:
-		return getApprovedLibraryAsset(assetName)
-	except Exception as approvedError:
-		log.warning(f"lib_updater: Approved library metadata unavailable: {approvedError}", exc_info=True)
 		return getLatestVerifiedLibraryAsset(assetName)
-
-
-def _askInstallApprovedFallback(assetName: str, latestError: BaseException) -> bool:
-	try:
-		getApprovedLibraryAsset(assetName)
-	except Exception:
-		return False
-	message = _(
-		# Translators: Question shown when the latest dependency release cannot be verified.
-		"The latest library package could not be verified for {assetName}.\n\nError: {error}\n\nInstall the bundled approved library version instead?",
-	).format(
-		assetName=assetName,
-		error=latestError,
-	)
-	return _askUserYesNo(message, _("Use Approved Libraries"))
-
-
-def _askUserYesNo(message: str, title: str) -> bool:
-	answer = {"value": False}
-	ready = threading.Event()
-
-	def ask() -> None:
-		try:
-			answer["value"] = (
-				wx.MessageBox(message, title, wx.YES_NO | wx.NO_DEFAULT | wx.ICON_WARNING) == wx.YES
-			)
-		finally:
-			ready.set()
-
-	wx.CallAfter(ask)
-	ready.wait()
-	return answer["value"]
+	except Exception as error:
+		if forceLatest:
+			raise
+		log.warning(
+			f"lib_updater: Could not resolve latest verified {assetName}; falling back to approved release: {error}",
+			exc_info=True,
+		)
+		return getApprovedLibraryAsset(assetName)
 
 
 def _installLibraryAsset(
@@ -493,7 +469,7 @@ def _findReleaseAsset(release: dict[str, Any], assetName: str) -> dict[str, Any]
 	)
 
 
-def _findReleaseChecksum(release: dict[str, Any], assetName: str) -> str:
+def _findReleaseChecksum(release: dict[str, Any], assetName: str, asset: dict[str, Any]) -> str:
 	checksumAssetNames = (f"{assetName}.sha256", "checksums.txt")
 	for checksumAssetName in checksumAssetNames:
 		checksumAsset = _findOptionalReleaseAsset(release, checksumAssetName)
@@ -507,6 +483,9 @@ def _findReleaseChecksum(release: dict[str, Any], assetName: str) -> str:
 		)
 		if checksum:
 			return checksum
+	checksum = _parseReleaseAssetDigest(asset)
+	if checksum:
+		return checksum
 	raise LibraryUpdateError(
 		# Translators: Error shown when a dependency release lacks checksum metadata.
 		_("The latest library release does not include a checksum for {assetName}.").format(
@@ -520,6 +499,16 @@ def _findOptionalReleaseAsset(release: dict[str, Any], assetName: str) -> dict[s
 		if asset.get("name") == assetName and asset.get("browser_download_url"):
 			return asset
 	return None
+
+
+def _parseReleaseAssetDigest(asset: dict[str, Any]) -> str:
+	digest = str(asset.get("digest") or "")
+	if not digest.lower().startswith("sha256:"):
+		return ""
+	checksum = digest.split(":", 1)[1].strip()
+	if SHA256_RE.fullmatch(checksum) is None:
+		return ""
+	return checksum
 
 
 def _parseChecksumText(checksumText: str, assetName: str, *, allowFallback: bool) -> str:

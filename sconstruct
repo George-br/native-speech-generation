@@ -60,6 +60,7 @@ env = Environment(variables=vars, ENV=os.environ, tools=["gettexttool", "NVDAToo
 env.Append(
 	addon_info=buildVars.addon_info,
 	brailleTables=buildVars.brailleTables,
+	speechDictionaries=buildVars.speechDictionaries,
 	symbolDictionaries=buildVars.symbolDictionaries,
 )
 

@@ -209,25 +209,25 @@ Jika Anda ingin mengembangkan atau memodifikasi add-on ini, ikuti langkah-langka
 
 ### Pengaturan Lingkungan
 
-* **Python 32-bit (disarankan 3.11.9)**
-  [https://www.python.org/downloads/release/python-3119/](https://www.python.org/downloads/release/python-3119/)
-* **SCons 4.9.1 atau lebih baru**
+* **Python yang sesuai dengan runtime NVDA target**
+  * Gunakan **Python 3.13 64-bit** untuk NVDA 2026.1 dan yang lebih baru.
+  * Gunakan **Python 3.11 32-bit** hanya untuk paket dependensi NVDA lama yang masih didukung.
+* **uv** untuk toolchain build dan lint yang dipin.
 
   ```
-  pip install scons
+  uv sync
+  uv run pre-commit run --all-files
+  uv run scons
+  uv run scons pot
   ```
+
+  SCons 4.10.1, Markdown 3.10, Ruff 0.14.10, Pyright 1.1.407, dan tool build lainnya diinstal dari `uv.lock`.
 * **GNU Gettext Tools** (opsional, disarankan untuk lokalisasi)
   * Biasanya sudah terpasang di Linux/Cygwin.
   * Windows: [https://gnuwin32.sourceforge.net/downlinks/gettext.php](https://gnuwin32.sourceforge.net/downlinks/gettext.php)
-* **Markdown 3.8+** (untuk konversi dokumentasi)
-
-  ```
-  pip install markdown
-  ```
-
 ### Dependensi Tambahan
 
-Instal dependensi audio untuk Talk With AI langsung ke jalur pustaka add-on:
+Untuk pengembangan lokal saja, instal dependensi audio untuk Talk With AI langsung ke jalur pustaka add-on menggunakan versi dan arsitektur Python yang sesuai dengan runtime NVDA yang diuji:
 
 ```
 python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Speech-Generation/addon/globalPlugins/NativeSpeechGeneration/lib"
@@ -236,6 +236,13 @@ python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Spee
 Sesuaikan jalur tersebut dengan direktori sumber add-on di komputer Anda.
 
 Untuk implementasi Talk With AI versi audio saat ini, Anda tidak memerlukan `opencv-python`, `pillow`, atau `mss`.
+
+Untuk paket rilis, add-on mengunduh arsip dependensi terverifikasi terbaru berdasarkan versi NVDA yang berjalan:
+
+* `lib.zip` untuk NVDA 2025.3.3 dan build lama yang masih didukung.
+* `lib64.zip` untuk NVDA 2026.1 dan yang lebih baru.
+
+Add-on membaca data SHA-256 dari rilis dependensi GitHub terbaru, menggunakan digest asset rilis atau file checksum. Checksum bawaan yang disetujui hanya disimpan sebagai fallback untuk instalasi pertama ketika lookup rilis terbaru gagal. Reinstall library manual mewajibkan rilis terbaru yang terverifikasi. Folder hasil ekstraksi selalu diinstal sebagai `addon/globalPlugins/NativeSpeechGeneration/lib`.
 
 Lalu salin file berikut dari instalasi Python Anda ke:
 

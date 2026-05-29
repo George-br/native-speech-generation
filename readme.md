@@ -119,7 +119,7 @@ Open the dialog using:
 * **Select Model**
 
   * Flash 3.1 Preview
-  * Flash 2.5 (Standard Quality)
+  * Flash 2.5
   * Pro 2.5 (High Quality)
 * **Speaker Mode**
 
@@ -220,26 +220,26 @@ If you want to develop or modify this add-on, follow the steps below.
 
 ### Environment Setup
 
-* **Python 32-bit (3.11.9 recommended)**
-  [https://www.python.org/downloads/release/python-3119/](https://www.python.org/downloads/release/python-3119/)
-* **SCons 4.9.1 or newer**
+* **Python matching your target NVDA runtime**
+  * Use **Python 3.13 64-bit** when testing or packaging dependencies for NVDA 2026.1 and newer.
+  * Use **Python 3.11 32-bit** only when packaging dependencies for older supported NVDA builds.
+* **uv** for the pinned build and lint toolchain.
 
   ```
-  pip install scons
+  uv sync
+  uv run pre-commit run --all-files
+  uv run scons
+  uv run scons pot
   ```
+
+  SCons 4.10.1, Markdown 3.10, Ruff 0.14.10, Pyright 1.1.407, and the other build tools are installed from `uv.lock`.
 * **GNU Gettext Tools** (optional, recommended for localization)
 
   * Usually preinstalled on Linux/Cygwin.
   * Windows: [https://gnuwin32.sourceforge.net/downlinks/gettext.php](https://gnuwin32.sourceforge.net/downlinks/gettext.php)
-* **Markdown 3.8+** (for documentation conversion)
-
-  ```
-  pip install markdown
-  ```
-
 ### Additional Dependencies
 
-Install the audio-only Talk With AI dependencies directly into the add-on library path:
+For local development only, install the audio-only Talk With AI dependencies directly into the add-on library path using the Python version and architecture that match the NVDA runtime you are testing:
 
 ```
 python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Speech-Generation/addon/globalPlugins/NativeSpeechGeneration/lib"
@@ -249,12 +249,12 @@ Adjust the path according to your local add-on source directory.
 
 For the current audio-only Talk With AI implementation, you do not need `opencv-python`, `pillow`, or `mss`.
 
-For release packages, the add-on downloads verified dependency archives based on the running NVDA version:
+For release packages, the add-on downloads the latest verified dependency archive based on the running NVDA version:
 
 * `lib.zip` for NVDA 2025.3.3 and older supported builds.
 * `lib64.zip` for NVDA 2026.1 and newer.
 
-Both release assets must include matching SHA-256 files (`lib.zip.sha256` and `lib64.zip.sha256`). The extracted folder is always installed as `addon/globalPlugins/NativeSpeechGeneration/lib`.
+The add-on reads SHA-256 data from the latest GitHub dependency release, using the release asset digest or checksum files. Bundled approved checksums are kept only as a fallback for first-time installs when the latest-release lookup fails. Manual library reinstalls require the latest verified release. The extracted folder is always installed as `addon/globalPlugins/NativeSpeechGeneration/lib`.
 
 Then copy the following from your Python installation into:
 

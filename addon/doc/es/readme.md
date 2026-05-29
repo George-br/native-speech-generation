@@ -209,25 +209,25 @@ Si quieres desarrollar o modificar este complemento, sigue los pasos siguientes.
 
 ### Configuración del entorno
 
-* **Python de 32 bits (se recomienda 3.11.9)**
-  [https://www.python.org/downloads/release/python-3119/](https://www.python.org/downloads/release/python-3119/)
-* **SCons 4.9.1 o superior**
+* **Python correspondiente al runtime de NVDA objetivo**
+  * Usa **Python 3.13 de 64 bits** para NVDA 2026.1 y versiones posteriores.
+  * Usa **Python 3.11 de 32 bits** solo para empaquetar dependencias de versiones anteriores de NVDA compatibles.
+* **uv** para la cadena de herramientas de compilación y lint fijada.
 
   ```
-  pip install scons
+  uv sync
+  uv run pre-commit run --all-files
+  uv run scons
+  uv run scons pot
   ```
+
+  SCons 4.10.1, Markdown 3.10, Ruff 0.14.10, Pyright 1.1.407 y las demás herramientas de compilación se instalan desde `uv.lock`.
 * **Herramientas GNU Gettext** (opcional, recomendado para localización)
   * Normalmente vienen preinstaladas en Linux/Cygwin.
   * Windows: [https://gnuwin32.sourceforge.net/downlinks/gettext.php](https://gnuwin32.sourceforge.net/downlinks/gettext.php)
-* **Markdown 3.8+** (para conversión de documentación)
-
-  ```
-  pip install markdown
-  ```
-
 ### Dependencias adicionales
 
-Instala las dependencias de audio de Talk With AI directamente en la ruta de bibliotecas del complemento:
+Solo para desarrollo local, instala las dependencias de audio de Talk With AI directamente en la ruta de bibliotecas del complemento usando la versión y arquitectura de Python que coincidan con el runtime de NVDA que estás probando:
 
 ```
 python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Speech-Generation/addon/globalPlugins/NativeSpeechGeneration/lib"
@@ -236,6 +236,13 @@ python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Spee
 Ajusta la ruta según tu directorio local del código fuente del complemento.
 
 Para la implementación actual de Talk With AI basada solo en audio, no necesitas `opencv-python`, `pillow` ni `mss`.
+
+Para paquetes de lanzamiento, el complemento descarga el archivo de dependencias verificado más reciente según la versión de NVDA en ejecución:
+
+* `lib.zip` para NVDA 2025.3.3 y compilaciones anteriores compatibles.
+* `lib64.zip` para NVDA 2026.1 y versiones posteriores.
+
+El complemento lee los datos SHA-256 desde la versión de dependencias más reciente en GitHub, usando el digest del asset de la versión o archivos de checksum. Los checksums aprobados incluidos se conservan solo como fallback para primeras instalaciones cuando falla la consulta de la versión más reciente. La reinstalación manual de bibliotecas requiere la versión verificada más reciente. La carpeta extraída siempre se instala como `addon/globalPlugins/NativeSpeechGeneration/lib`.
 
 Después, copia lo siguiente desde tu instalación de Python a:
 

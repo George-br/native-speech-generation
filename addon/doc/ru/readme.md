@@ -209,25 +209,25 @@ Native Speech Generation — это дополнение для NVDA, котор
 
 ### Настройка окружения
 
-* **Python 32-bit (рекомендуется 3.11.9)**
-  [https://www.python.org/downloads/release/python-3119/](https://www.python.org/downloads/release/python-3119/)
-* **SCons 4.9.1 или новее**
+* **Python, соответствующий целевой среде NVDA**
+  * Используйте **Python 3.13 64-bit** для NVDA 2026.1 и новее.
+  * Используйте **Python 3.11 32-bit** только для упаковки зависимостей старых поддерживаемых версий NVDA.
+* **uv** для закрепленной цепочки инструментов сборки и lint-проверок.
 
   ```
-  pip install scons
+  uv sync
+  uv run pre-commit run --all-files
+  uv run scons
+  uv run scons pot
   ```
+
+  SCons 4.10.1, Markdown 3.10, Ruff 0.14.10, Pyright 1.1.407 и другие инструменты сборки устанавливаются из `uv.lock`.
 * **GNU Gettext Tools** (необязательно, рекомендуется для локализации)
   * Обычно уже установлены в Linux/Cygwin.
   * Windows: [https://gnuwin32.sourceforge.net/downlinks/gettext.php](https://gnuwin32.sourceforge.net/downlinks/gettext.php)
-* **Markdown 3.8+** (для преобразования документации)
-
-  ```
-  pip install markdown
-  ```
-
 ### Дополнительные зависимости
 
-Установите аудиозависимости для Talk With AI прямо в каталог библиотек дополнения:
+Только для локальной разработки установите аудиозависимости для Talk With AI прямо в каталог библиотек дополнения, используя версию и архитектуру Python, соответствующие тестируемой среде NVDA:
 
 ```
 python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Speech-Generation/addon/globalPlugins/NativeSpeechGeneration/lib"
@@ -236,6 +236,13 @@ python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Spee
 Скорректируйте путь под ваш локальный каталог с исходным кодом дополнения.
 
 Для текущей аудио-реализации Talk With AI вам не нужны `opencv-python`, `pillow` и `mss`.
+
+Для релизных пакетов дополнение загружает последний проверенный архив зависимостей в зависимости от запущенной версии NVDA:
+
+* `lib.zip` для NVDA 2025.3.3 и более ранних поддерживаемых сборок.
+* `lib64.zip` для NVDA 2026.1 и новее.
+
+Дополнение считывает SHA-256 из последнего релиза зависимостей на GitHub, используя digest asset релиза или файлы checksum. Встроенные одобренные checksum остаются только как fallback для первой установки, если не удалось получить данные последнего релиза. Ручная переустановка библиотек требует последний проверенный релиз. Извлечённая папка всегда устанавливается как `addon/globalPlugins/NativeSpeechGeneration/lib`.
 
 Затем скопируйте следующее из вашей установки Python в:
 

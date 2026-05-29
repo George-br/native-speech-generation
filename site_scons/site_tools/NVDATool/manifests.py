@@ -1,7 +1,7 @@
 import gettext
 from functools import partial
 
-from .typings import AddonInfo, BrailleTables, SymbolDictionaries
+from .typings import AddonInfo, BrailleTables, SpeechDictionaries, SymbolDictionaries
 from .utils import format_nested_section
 
 
@@ -10,6 +10,7 @@ def generateManifest(
 	dest: str,
 	addon_info: AddonInfo,
 	brailleTables: BrailleTables,
+	speechDictionaries: SpeechDictionaries,
 	symbolDictionaries: SymbolDictionaries,
 ):
 	# Prepare the root manifest section
@@ -25,6 +26,9 @@ def generateManifest(
 	if symbolDictionaries:
 		manifest += format_nested_section("symbolDictionaries", symbolDictionaries)
 
+	if speechDictionaries:
+		manifest += format_nested_section("speechDictionaries", speechDictionaries)
+
 	with open(dest, "w", encoding="utf-8") as f:
 		f.write(manifest)
 
@@ -36,6 +40,7 @@ def generateTranslatedManifest(
 	mo: str,
 	addon_info: AddonInfo,
 	brailleTables: BrailleTables,
+	speechDictionaries: SpeechDictionaries,
 	symbolDictionaries: SymbolDictionaries,
 ):
 	with open(mo, "rb") as f:
@@ -61,6 +66,9 @@ def generateTranslatedManifest(
 	# Custom speech symbol dictionaries
 	if symbolDictionaries:
 		manifest += _format_section_only_with_displayName("symbolDictionaries", symbolDictionaries)
+
+	if speechDictionaries:
+		manifest += _format_section_only_with_displayName("speechDictionaries", speechDictionaries)
 
 	with open(dest, "w", encoding="utf-8") as f:
 		f.write(manifest)

@@ -2,7 +2,7 @@
 
 **Autor:** Muhammad Gagah muha.aku@gmail.com **
 
-Natürliche Spracherzeugung ist ein NVDA‑Add-on, das **Google Gemini AI** integriert, um hochwertige, natürlich klingende Sprache direkt in NVDA zu erzeugen.  
+Natürliche Spracherzeugung ist ein NVDA‑Add-on, das **Google Gemini AI** integriert, um hochwertige, natürlich klingende Sprache direkt in NVDA zu erzeugen.
 
 Es bietet eine klare, vollständig zugängliche Oberfläche zur Umwandlung von Text in Audio und unterstützt sowohl **Einzelsprecher‑Vorlesemodi** als auch **dynamische Dialoge mit zwei Sprechern**.
 
@@ -25,7 +25,7 @@ Dieses Addon ist für reibungslose Arbeitsabläufe, barrierefreie Bedienung und 
 ### Erweiterte Stimmkontrolle
 
 * **Sprechernamen**
-  Weise im Mehrsprecher‑Modus individuelle Namen zu (z. B. *John*, *Mary*).  
+  Weise im Mehrsprecher‑Modus individuelle Namen zu (z. B. *John*, *Mary*).
   Die KI ordnet Stimmen automatisch anhand der Namen im Skript zu.
 * **Stil‑Anweisungen**
   Gib Hinweise wie *„Sprich in fröhlichem Ton“* oder *„Ruhig erzählen“*, um die Sprechweise zu steuern.
@@ -69,17 +69,17 @@ Dieses Addon ist für reibungslose Arbeitsabläufe, barrierefreie Bedienung und 
 
 -## Installation
 
-1. Lade das neueste Add-on von der  
-   **Veröffentlichungsseite:**  
-   `https://github.com/MuhammadGagah/native-speech-generation/releases` 
+1. Lade das neueste Add-on von der
+   **Veröffentlichungsseite:**
+   `https://github.com/MuhammadGagah/native-speech-generation/releases`
 2. Installiere es wie jedes NVDA‑Add-on.
 3. Starte NVDA neu, wenn du dazu aufgefordert wirst.
 
 -## API‑Schlüssel einrichten (erforderlich)
 
-1. Erstelle einen API‑Schlüssel in **Google AI Studio**:  
+1. Erstelle einen API‑Schlüssel in **Google AI Studio**:
    <https://aistudio.google.com/apikey>
-2. Öffne NVDA und gehe zu:  
+2. Öffne NVDA und gehe zu:
    **NVDA-Menü → Werkzeuge → Natürliche Spracherzeugung**
 3. Klicke auf **„API Key Einstellungen“**.
 4. Dadurch öffnet sich der NVDA‑Einstellungsdialog direkt im Bereich *Natürliche Spracherzeugung*.
@@ -88,7 +88,7 @@ Dieses Addon ist für reibungslose Arbeitsabläufe, barrierefreie Bedienung und 
 
 Gespeicherte Schlüssel werden sicher über **Windows DPAPI** verschlüsselt – sie können auf anderen Windows‑Systemen oder Benutzerkonten nicht entschlüsselt werden.
 
-Für fortgeschrittene Bereitstellungen kannst du den Schlüssel auch über die Umgebungsvariable  
+Für fortgeschrittene Bereitstellungen kannst du den Schlüssel auch über die Umgebungsvariable
 **`GEMINI_API_KEY`** bereitstellen. Das Add-on nutzt ihn automatisch, wenn kein gespeicherter Schlüssel vorhanden ist.
 
 ## Verwendung
@@ -100,9 +100,9 @@ Für fortgeschrittene Bereitstellungen kannst du den Schlüssel auch über die U
 
 ### Hauptelemente der Oberfläche
 
-* **Text zum Konvertieren**  
+* **Text zum Konvertieren**
   Gib den Text ein oder füge ihn ein.
-* **Stil‑Anweisungen (optional)**  
+* **Stil‑Anweisungen (optional)**
   Hinweise zu Ton, Emotion oder Sprechweise.
 * **Modell auswählen**
 
@@ -141,21 +141,21 @@ Alice: Hallo Bob, wie geht es dir heute?
 Bob: Mir geht’s super, Alice! Das Wetter ist fantastisch.
 ```
 
-4. Klicke **Sprache erzeugen*.  
+4. Klicke **Sprache erzeugen*.
    Stimmen werden automatisch anhand der Namen zugeordnet.
 
 ## Sprechen mit der KI (Live‑Modus)
 
 Erlebe ein natürliches Sprachgespräch mit Gemini.
 
-1. Stimme und Stil‑Anweisungen im Hauptdialog konfigurieren.  
+1. Stimme und Stil‑Anweisungen im Hauptdialog konfigurieren.
    *(Hinweis: Sprechen mit der KI unterstützt derzeit nur Einzelsprecher‑Modus.)*
 2. Klicke **Sprechen mit der KI**.
 3. Im neuen Fenster:
 
    * **Gespräch beginnen** – beginnt die Sitzung, Mikrofon aktiv.
    * **Gespräch stoppen** – beendet die Sitzung.
-   * **Verbindung mit Google-Suche** – erlaubt Web‑Recherche.  
+   * **Verbindung mit Google-Suche** – erlaubt Web‑Recherche.
      *(Während einer aktiven Sitzung ausgeblendet.)*
    * **Verarbeitungstiefe: ** – `Nein`, `Niedrig`, `Medium`, `Hoch`.
    * **Mikrofon‑Schalter** – Stummschalten/aktivieren.
@@ -182,7 +182,7 @@ Erlebe ein natürliches Sprachgespräch mit Gemini.
 
 ## Tastenkombinationen
 
-Anpassbar unter:  
+Anpassbar unter:
 **NVDA-Menü → Optionen → Tastenbefehle → Natürliche Spracherzeugung**
 
 Standard:
@@ -195,28 +195,28 @@ Wenn du das Add-on Weiterentwickeln oder anpassen möchtest:
 
 ### Entwicklungsumgebung
 
-* **Python 32‑bit (3.11.9 empfohlen)**  
-  `https://www.python.org/downloads/release/python-3119/` [(python.org in Bing)](https://www.bing.com/search?q="https%3A%2F%2Fwww.python.org%2Fdownloads%2Frelease%2Fpython-3119%2F")
-* **SCons 4.9.1 oder neuer**
+* **Python passend zur Ziel-NVDA-Laufzeit**
+  * Verwende **Python 3.13 64-bit** für NVDA 2026.1 und neuer.
+  * Verwende **Python 3.11 32-bit** nur zum Paketieren von Abhängigkeiten für ältere unterstützte NVDA-Versionen.
+* **uv** für die festgelegte Build- und Lint-Toolchain.
 
   ```
-  pip install scons
+  uv sync
+  uv run pre-commit run --all-files
+  uv run scons
+  uv run scons pot
   ```
+
+  SCons 4.10.1, Markdown 3.10, Ruff 0.14.10, Pyright 1.1.407 und die weiteren Build-Tools werden aus `uv.lock` installiert.
 
 * **GNU Gettext Tools** (optional, empfohlen)
 
   * Unter Linux/Cygwin meist vorinstalliert.
   * Windows: `https://gnuwin32.sourceforge.net/downlinks/gettext.php` [(gnuwin32.sourceforge.net in Bing)](https://www.bing.com/search?q="https%3A%2F%2Fgnuwin32.sourceforge.net%2Fdownlinks%2Fgettext.php")
 
-* **Markdown 3.8+** (für Dokumentationskonvertierung)
-
-  ```
-  pip install markdown
-  ```
-
 ### Zusätzliche Abhängigkeiten
 
-Installiere die Audio‑Abhängigkeiten für Sprechen  mit der KI direkt in den Add-on‑Lib‑Ordner:
+Installiere die Audio‑Abhängigkeiten für Sprechen mit der KI nur für lokale Entwicklung direkt in den Add-on‑Lib‑Ordner. Verwende dabei die Python-Version und Architektur, die zur getesteten NVDA-Laufzeit passen:
 
 ```
 python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Speech-Generation/addon/globalPlugins/NativeSpeechGeneration/lib"
@@ -225,6 +225,13 @@ python.exe -m pip install google-genai pyaudio --target "D:/myAdd-on/Native-Spee
 Pfad entsprechend anpassen.
 
 Für die aktuelle Audio‑only‑Implementierung werden **opencv-python**, **pillow** und **mss** nicht benötigt.
+
+Für Release-Pakete lädt das Add-on das neueste verifizierte Abhängigkeitsarchiv passend zur laufenden NVDA-Version herunter:
+
+* `lib.zip` für NVDA 2025.3.3 und ältere unterstützte Builds.
+* `lib64.zip` für NVDA 2026.1 und neuer.
+
+Das Add-on liest die SHA-256-Daten aus dem neuesten GitHub-Abhängigkeitsrelease, entweder aus dem Release-Asset-Digest oder aus Checksum-Dateien. Mitgelieferte genehmigte Checksums bleiben nur als Fallback für Erstinstallationen erhalten, wenn die Abfrage des neuesten Releases fehlschlägt. Manuelle Bibliotheks-Neuinstallationen verlangen das neueste verifizierte Release. Der extrahierte Ordner wird immer als `addon/globalPlugins/NativeSpeechGeneration/lib` installiert.
 
 Kopiere anschließend aus deiner Python‑Installation in:
 
