@@ -30,7 +30,13 @@ class SymbolDictionaryAttributes(TypedDict):
 	mandatory: bool
 
 
+class SpeechDictionaryAttributes(TypedDict):
+	displayName: str
+	mandatory: bool
+
+
 BrailleTables = dict[str, BrailleTableAttributes]
+SpeechDictionaries = dict[str, SpeechDictionaryAttributes]
 SymbolDictionaries = dict[str, SymbolDictionaryAttributes]
 
 

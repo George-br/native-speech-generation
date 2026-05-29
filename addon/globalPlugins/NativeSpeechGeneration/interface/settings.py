@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 import wx
 import webbrowser
-import os
-import shutil
-import time
 from typing import TYPE_CHECKING
 import gui
 import addonHandler
@@ -22,6 +19,8 @@ addonHandler.initTranslation()
 
 
 class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
+	"""Settings panel for API key storage and dependency maintenance."""
+
 	# Translators: Title of the settings panel in NVDA preferences.
 	title = _("Native Speech Generation")
 
@@ -32,7 +31,7 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 
 	def makeSettings(self, settingsSizer: wx.Sizer) -> None:
 		sHelper = gui.guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
-		apiResolution = config_store.resolve_api_key()
+		apiResolution = config_store.resolveApiKey()
 
 		apiSizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -40,7 +39,7 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		apiLabel = wx.StaticText(self, label=_("&Gemini API Key:"))
 		apiSizer.Add(apiLabel, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 
-		apiValue = config_store.get_stored_api_key()
+		apiValue = config_store.getStoredApiKey()
 
 		self.apiKeyCtrlHidden = wx.TextCtrl(self, value=apiValue, style=wx.TE_PASSWORD)
 		self.apiKeyCtrlVisible = wx.TextCtrl(self, value=apiValue)
@@ -123,6 +122,7 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 			targetCtrl.SetFocus()
 
 	def onGetKey(self, evt: wx.Event) -> None:
+		"""Open Google AI Studio in the user's default browser."""
 		webbrowser.open("https://aistudio.google.com/apikey")
 
 	def _getCurrentApiKeyFieldValue(self) -> str:
@@ -143,10 +143,8 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 
 	def isValid(self) -> bool:
 		try:
-			self._validatedApiKeyValue, self._validatedEncryptedApiKey = (
-				config_store.prepare_api_key_for_storage(
-					self._getCurrentApiKeyFieldValue(),
-				)
+			self._validatedApiKeyValue, self._validatedEncryptedApiKey = config_store.prepareApiKeyForStorage(
+				self._getCurrentApiKeyFieldValue(),
 			)
 		except config_store.ApiKeyStorageError as error:
 			self._validatedApiKeyValue = ""
@@ -156,50 +154,14 @@ class NativeSpeechSettingsPanel(gui.settingsDialogs.SettingsPanel):
 		return True
 
 	def onReinstall(self, evt: wx.Event) -> None:
-		"""Handles the reinstall libraries action."""
-		res = wx.MessageBox(
-			_("This will delete the existing library and restart NVDA to redownload it.\nAre you sure?"),
-			_("Confirm Reinstall"),
-			wx.OK | wx.CANCEL | wx.ICON_WARNING,
-		)
-		if res != wx.OK:
-			return
-
-		try:
-			try:
-				targetLib = lib_updater.LIB_DIR
-			except AttributeError:
-				guiDir = os.path.dirname(os.path.abspath(__file__))
-				pkgDir = os.path.dirname(guiDir)
-				targetLib = os.path.join(pkgDir, "lib")
-
-			if os.path.exists(targetLib):
-				tempTrash = targetLib + "_trash_" + str(time.time())
-				os.rename(targetLib, tempTrash)
-				shutil.rmtree(tempTrash, ignore_errors=True)
-
-			wx.MessageBox(
-				_("Library removed successfully. NVDA will now restart to download the latest version."),
-				_("Restart Required"),
-				wx.OK | wx.ICON_INFORMATION,
-			)
-			import core
-
-			core.restart()
-
-		except Exception as e:
-			log.error(f"Failed to delete lib folder: {e}", exc_info=True)
-			wx.MessageBox(
-				_("Failed to remove library: {error}\nPlease check log.").format(error=str(e)),
-				_("Error"),
-				wx.OK | wx.ICON_ERROR,
-			)
+		"""Start the verified dependency update flow."""
+		lib_updater.reinstallDependencies()
 
 	def onSave(self) -> None:
 		if not self.isValid():
 			return
 		try:
-			config_store.write_prepared_api_key(
+			config_store.writePreparedApiKey(
 				self._validatedApiKeyValue,
 				self._validatedEncryptedApiKey,
 			)
